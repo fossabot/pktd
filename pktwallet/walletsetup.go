@@ -28,6 +28,7 @@ import (
 	"github.com/pkt-cash/pktd/pktwallet/wallet/seedwords"
 	"github.com/pkt-cash/pktd/pktwallet/walletdb"
 	_ "github.com/pkt-cash/pktd/pktwallet/walletdb/bdb"
+	"go.etcd.io/bbolt"
 )
 
 // networkDir returns the directory name of a network directory to hold wallet
@@ -314,7 +315,10 @@ func createSimulationWallet(cfg *config) er.R {
 	fmt.Println("Creating the wallet...")
 
 	// Create the wallet database backed by bolt db.
-	db, err := walletdb.Create("bdb", dbPath)
+	opts := &bbolt.Options{
+		NoFreelistSync: true,
+	}
+	db, err := walletdb.Create("bdb", dbPath, opts)
 	if err != nil {
 		return err
 	}
