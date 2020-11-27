@@ -7,6 +7,8 @@ package main
 import (
 	"bufio"
 	"fmt"
+	"go.etcd.io/bbolt"
+	"math"
 	"os"
 	"path/filepath"
 
@@ -16,11 +18,11 @@ import (
 	"github.com/pkt-cash/pktd/pktconfig/version"
 	"github.com/pkt-cash/pktd/pktwallet/waddrmgr"
 	"github.com/pkt-cash/pktd/pktwallet/walletdb"
-	_ "github.com/pkt-cash/pktd/pktwallet/walletdb/bdb"
+	"github.com/pkt-cash/pktd/pktwallet/walletdb/bdb"
 	"github.com/pkt-cash/pktd/pktwallet/wtxmgr"
 )
 
-const defaultNet = "mainnet"
+const defaultNet = "pkt"
 
 var datadir = btcutil.AppDataDir("pktwallet", false)
 
@@ -71,12 +73,12 @@ func main() {
 
 func mainInt() int {
 	fmt.Println("Database path:", opts.DbPath)
-	_, errr := os.Stat(opts.DbPath)
+	dbFileInfo, errr := os.Stat(opts.DbPath)
 	if os.IsNotExist(errr) {
 		fmt.Println("Database file does not exist")
 		return 1
 	}
-
+	var dbFileSize int64 = int64(dbFileInfo.Size())
 	for !opts.Force {
 		fmt.Print("Drop all pktwallet transaction history? [y/N] ")
 
@@ -102,7 +104,12 @@ func mainInt() int {
 		fmt.Println("Enter yes or no.")
 	}
 
-	db, err := walletdb.Open("bdb", opts.DbPath)
+	dbopts := &bbolt.Options{
+		NoFreelistSync:  true,
+		InitialMmapSize: int(math.Ceil(float64(dbFileSize) * 1.2)),
+		FreelistType:    bbolt.FreelistMapType,
+	}
+	db, err := bdb.OpenDB(opts.DbPath, false, dbopts)
 	if err != nil {
 		fmt.Println("Failed to open database:", err)
 		return 1

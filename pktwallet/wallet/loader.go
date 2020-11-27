@@ -6,6 +6,7 @@ package wallet
 
 import (
 	"fmt"
+	"math"
 	"os"
 	"path/filepath"
 	"strings"
@@ -18,6 +19,8 @@ import (
 	"github.com/pkt-cash/pktd/pktwallet/waddrmgr"
 	"github.com/pkt-cash/pktd/pktwallet/wallet/seedwords"
 	"github.com/pkt-cash/pktd/pktwallet/walletdb"
+	"github.com/pkt-cash/pktd/pktwallet/walletdb/bdb"
+	"go.etcd.io/bbolt"
 )
 
 var Err er.ErrorType = er.NewErrorType("wallet.Err")
@@ -50,6 +53,7 @@ type Loader struct {
 	callbacks      []func(*Wallet)
 	chainParams    *chaincfg.Params
 	dbDirPath      string
+	noFreelistSync bool
 	walletName     string
 	recoveryWindow uint32
 	wallet         *Wallet
@@ -60,13 +64,14 @@ type Loader struct {
 // NewLoader constructs a Loader with an optional recovery window. If the
 // recovery window is non-zero, the wallet will attempt to recovery addresses
 // starting from the last SyncedTo height.
-func NewLoader(chainParams *chaincfg.Params, dbDirPath, walletName string,
-	recoveryWindow uint32) *Loader {
+func NewLoader(chainParams *chaincfg.Params, dbDirPath,
+	walletName string, noFreelistSync bool, recoveryWindow uint32) *Loader {
 
 	return &Loader{
 		chainParams:    chainParams,
 		walletName:     walletName,
 		dbDirPath:      dbDirPath,
+		noFreelistSync: noFreelistSync,
 		recoveryWindow: recoveryWindow,
 	}
 }
@@ -138,7 +143,11 @@ func (l *Loader) CreateNewWallet(pubPassphrase, privPassphrase []byte,
 	if err != nil {
 		return nil, err
 	}
-	db, err := walletdb.Create("bdb", dbPath)
+	opts := &bbolt.Options{
+		NoFreelistSync:  true,
+		FreelistType:    bbolt.FreelistMapType,
+	}
+	db, err := bdb.OpenDB(dbPath, true, opts)
 	if err != nil {
 		return nil, err
 	}
@@ -181,9 +190,27 @@ func (l *Loader) OpenExistingWallet(pubPassphrase []byte, canConsolePrompt bool)
 		return nil, err
 	}
 
+		var dbFileSize int64
+		var opts *bbolt.Options
+
 	// Open the database using the boltdb backend.
 	dbPath := WalletDbPath(l.dbDirPath, l.walletName)
-	db, err := walletdb.Open("bdb", dbPath)
+    exists, err := fileExists(dbPath)
+    if err != nil {
+        return nil, err
+    }
+    if exists {
+		dbFileInfo, _ := os.Stat(dbPath)
+		dbFileSize = int64(dbFileInfo.Size())
+		opts = &bbolt.Options{
+			NoFreelistSync:  true,
+			InitialMmapSize: int(math.Ceil(float64(dbFileSize) * 2.5)),
+			FreelistType:    bbolt.FreelistMapType,
+		}
+	} else {
+		return nil, err
+	}
+	db, err := bdb.OpenDB(dbPath, false, opts)
 	if err != nil {
 		log.Errorf("Failed to open database: %v", err)
 		return nil, err
