@@ -62,7 +62,6 @@ type config struct {
 	BtcMainNet    bool                    `long:"btc" description:"Use the test bitcoin main network"`
 	PktMainNet    bool                    `long:"pkt" description:"Use the test pkt.cash main network"`
 	SimNet        bool                    `long:"simnet" description:"Use the simulation test network (default mainnet)"`
-	NoInitialLoad bool                    `long:"noinitialload" description:"Defer wallet creation/opening on startup and enable loading wallets over RPC"`
 	DebugLevel    string                  `short:"d" long:"debuglevel" description:"Logging level {trace, debug, info, warn, error, critical}"`
 	LogDir        string                  `long:"logdir" description:"Directory to log output."`
 	StatsViz	  string				  `long:"statsviz" description:"Enable StatsViz runtime visualization on given port -- NOTE port must be between 1024 and 65535"`
@@ -530,7 +529,7 @@ func loadConfig() (*config, []string, er.R) {
 
 		// Created successfully, so exit now with success.
 		os.Exit(0)
-	} else if !dbFileExists && !cfg.NoInitialLoad {
+	} else if !dbFileExists {
 		keystorePath := filepath.Join(netDir, keystore.Filename)
 		keystoreExists, err := cfgutil.FileExists(keystorePath)
 		if err != nil {
