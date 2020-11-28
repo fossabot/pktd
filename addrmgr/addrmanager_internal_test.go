@@ -78,14 +78,12 @@ func assertAddrs(t *testing.T, addrMgr *AddrManager,
 				len(expectedAddrs), len(addrs))
 		}
 	}
-
 	for _, addr := range addrs {
 		addrStr := NetAddressKey(addr)
 		expectedAddr, ok := expectedAddrs[addrStr]
 		if !ok {
 			t.Fatalf("expected to find address %v", addrStr)
 		}
-
 		assertAddr(t, addr, expectedAddr)
 	}
 }

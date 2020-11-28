@@ -324,7 +324,7 @@ func (sp *serverPeer) pushAddrMsg(addresses []*wire.NetAddress) {
 	known, err := sp.PushAddrMsg(addrs)
 	if err != nil {
 		peerLog.Errorf("Can't push address message to %s: %v", sp.Peer, err)
-		sp.Disconnect()
+		// sp.Disconnect() XXX(jhj): Only warn and return to align with Core.
 		return
 	}
 	sp.addKnownAddresses(known)
@@ -338,10 +338,6 @@ func (sp *serverPeer) pushAddrMsg(addresses []*wire.NetAddress) {
 func (sp *serverPeer) addBanScore(persistent, transient uint32, reason string) bool {
 	// No warning is logged and no score is calculated if banning is disabled.
 	if cfg.DisableBanning {
-		return false
-	}
-	if sp.isWhitelisted {
-		peerLog.Debugf("Misbehaving whitelisted peer %s: %s", sp, reason)
 		return false
 	}
 
@@ -360,6 +356,10 @@ func (sp *serverPeer) addBanScore(persistent, transient uint32, reason string) b
 	if score > warnThreshold {
 		peerLog.Warnf("Misbehaving peer %s: %s -- ban score increased to %d",
 			sp, reason, score)
+		if sp.isWhitelisted {
+	        peerLog.Debugf("Misbehaving peer %s is whitelisted", sp)
+			return false
+	    }
 		if score > cfg.BanThreshold {
 			peerLog.Warnf("Misbehaving peer %s -- banning and disconnecting",
 				sp)
@@ -428,8 +428,7 @@ func (sp *serverPeer) OnVersion(_ *peer.Peer, msg *wire.MsgVersion) *wire.MsgRej
 		}
 
 		if segwitActive && !sp.IsWitnessEnabled() {
-			peerLog.Infof("Disconnecting non-segwit peer %v, isn't segwit "+
-				"enabled and we need more segwit enabled peers", sp)
+			peerLog.Infof("Disconnecting non-segwit peer %v", sp)
 			sp.Disconnect()
 			return nil
 		}
@@ -574,7 +573,7 @@ func (sp *serverPeer) OnInv(_ *peer.Peer, msg *wire.MsgInv) {
 			if sp.ProtocolVersion() >= protocol.BIP0037Version {
 				peerLog.Infof("Peer %v is announcing "+
 					"transactions -- disconnecting", sp)
-				sp.Disconnect()
+				//sp.Disconnect() // No longer disconnect per Core.
 				return
 			}
 			continue
@@ -611,7 +610,7 @@ func (sp *serverPeer) OnGetData(_ *peer.Peer, msg *wire.MsgGetData) {
 	// bursts of small requests are not penalized as that would potentially ban
 	// peers performing IBD.
 	// This incremental score decays each minute to half of its value.
-	if sp.addBanScore(0, (uint32(length/2)/wire.MaxInvPerMsg/256), "getdata") {
+	if sp.addBanScore(0, (((uint32(length/128))/(uint32(wire.MaxInvPerMsg/4095)))), "getdata") {
 		return
 	}
 
@@ -1082,27 +1081,15 @@ func (sp *serverPeer) enforceNodeBloomFlag(cmd string) bool {
 		// enabled.
 		//
 		// NOTE: Even though the addBanScore function already examines
-		// whether or not banning is enabled, it is checked here as well
-		// to ensure the violation is logged and the peer is
-		// disconnected regardless.
+		// whether or not banning is enabled, it is checked here as well.
 		if sp.ProtocolVersion() >= protocol.BIP0111Version &&
 			!cfg.DisableBanning {
-
-			// Disconnect the peer regardless of whether it was
-			// banned.
-			sp.addBanScore(100, 0, cmd)
-			sp.Disconnect()
-			return false
+				sp.addBanScore(150, 0, cmd)
+				sp.Disconnect()
+				return false
 		}
-
-		// Disconnect the peer regardless of protocol version or banning
-		// state.
-		peerLog.Debugf("%s sent an unsupported %s request -- "+
-			"disconnecting", sp, cmd)
-		sp.Disconnect()
 		return false
 	}
-
 	return true
 }
 
@@ -1113,9 +1100,8 @@ func (sp *serverPeer) enforceNodeBloomFlag(cmd string) bool {
 func (sp *serverPeer) OnFeeFilter(_ *peer.Peer, msg *wire.MsgFeeFilter) {
 	// Check that the passed minimum fee is a valid amount.
 	if msg.MinFee < 0 || msg.MinFee > int64(btcutil.MaxUnits()) {
-		peerLog.Debugf("Peer %v sent an invalid feefilter '%v' -- "+
-			"disconnecting", sp, btcutil.Amount(msg.MinFee))
-		sp.Disconnect()
+		peerLog.Debugf("Peer %v sent an invalid feefilter '%v'", sp, btcutil.Amount(msg.MinFee))
+		//sp.Disconnect() // Do not disconnect now, per Core.
 		return
 	}
 
@@ -1305,14 +1291,13 @@ func (sp *serverPeer) OnNotFound(p *peer.Peer, msg *wire.MsgNotFound) {
 		default:
 			peerLog.Debugf("Invalid inv type '%d' in notfound message from %s",
 				inv.Type, sp)
-			sp.Disconnect()
 			return
 		}
 	}
 	if numBlocks > 0 {
 		blockStr := pickNoun(uint64(numBlocks), "block", "blocks")
 		reason := fmt.Sprintf("%d %v not found", numBlocks, blockStr)
-		if sp.addBanScore(20*numBlocks, 0, reason) {
+		if sp.addBanScore(10*numBlocks, 0, reason) {
 			return
 		}
 	}
@@ -1606,7 +1591,7 @@ func (s *server) handleAddPeerMsg(state *peerState, sp *serverPeer) bool {
 
 	// Ignore new peers if we're shutting down.
 	if atomic.LoadInt32(&s.shutdown) != 0 {
-		srvrLog.Infof("New peer %s ignored - server is shutting down", sp)
+		srvrLog.Infof("New peer %s disconnected due to server shutdown", sp)
 		sp.Disconnect()
 		return false
 	}
@@ -1614,7 +1599,7 @@ func (s *server) handleAddPeerMsg(state *peerState, sp *serverPeer) bool {
 	// Disconnect banned peers.
 	host, _, err := net.SplitHostPort(sp.Addr())
 	if err != nil {
-		srvrLog.Debugf("can't split hostport %v", err)
+		srvrLog.Debugf("Disconnected peer due to failure to split hostport: %v", err)
 		sp.Disconnect()
 		return false
 	}
@@ -1626,7 +1611,7 @@ func (s *server) handleAddPeerMsg(state *peerState, sp *serverPeer) bool {
 			return false
 		}
 
-		srvrLog.Infof("Peer %s is no longer banned", host)
+		srvrLog.Infof("Ban for peer %s has expired", host)
 		delete(state.banned, host)
 	}
 

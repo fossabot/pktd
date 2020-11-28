@@ -21,7 +21,7 @@ implementation, written in [Go](https://go.dev/).
 `pktd` is the primary mainnet node software for the PKT blockchain. It is
 known to correctly download, validate, and serve the blockchain, using rules for
 block acceptance based primarily on Bitcoin Core, with the addition of
-[PacketCrypt proofs](https://pkt.cash/PacketCrypt-2020-09-04.pdf) to provide 
+[PacketCrypt proofs](https://pkt.cash/PacketCrypt-2020-09-04.pdf) to provide
 verification of the unique *bandwidth-hard* proof-of-work algorithm.
 
 The PKT blockchain provides for a [Network Steward](https://pkt.cash/network-steward/),
@@ -71,11 +71,11 @@ Additional alternative wallet packages are currently under active development.
    * `cd pktd && ./do`
 
 *Optionally*, run extended tests and generate code coverage reports:
-* Using `go get`, install the `gocov` and `gocov-html` tools into your `GOPATH`:
+* Using `go get`, install the `gocov` and `gocov-html` tools into your `GOPATH`
    * `GO111MODULES=off go get -t -u github.com/axw/gocov/gocov`
-   * `GO111MODULES=off go get -t -u github.com/matm/gocov-html`  
+   * `GO111MODULES=off go get -t -u github.com/matm/gocov-html`
 * Then, run the coverage generation script: (*zsh, bash, ksh, or mksh required*.)
-   * `PATH=$(go env GOPATH)/bin:${PATH} ./cov_report.sh` 
+   * `PATH=$(go env GOPATH)/bin:${PATH} ./cov_report.sh`
 
 
 ## Bug Reporting
@@ -84,10 +84,10 @@ The **GitHub** [**Issue Tracker**](https://github.com/pkt-cash/pktd/issues) is u
 
   * All users submitting a [new bug report](https://github.com/pkt-cash/pktd/issues/new/choose) should attach the output of:
      * `go version`, `go env`
-     * `git describe --tags --always --abbrev=40`, `git status -s -b` 
+     * `git describe --tags --always --abbrev=40`, `git status -s -b`
   * macOS X users should attach the output of:
      * `uname -a`, `sw_vers`
-     * `system_profiler -detailLevel mini`, `serverinfo --plist`. 
+     * `system_profiler -detailLevel mini`, `serverinfo --plist`.
   * Linux users should attach the output of:
      * `uname -a`, `cat /etc/*elease`, `lsb_release -a`
   * Windows users should attach the *PowerShell* output of:
@@ -95,7 +95,7 @@ The **GitHub** [**Issue Tracker**](https://github.com/pkt-cash/pktd/issues) is u
   * POSIX environment users (*including* Linux, OS X, WSL/WSL2, other UNIX systems, etc.) should attach the output of:
      * `command -p getconf -a`
 
-This extra information is useful to identify potential operating system, distribution, or environment-specific issues. 
+This extra information is useful to identify potential operating system, distribution, or environment-specific issues.
 
 
 ## Linux Distributions
@@ -103,7 +103,7 @@ This extra information is useful to identify potential operating system, distrib
 It is *highly* recommended to use the official Go toolchain distributed
 by Google, available for download from the [Go homepage](https://golang.org/dl).
 
-Software built and packaged for Linux distributions is often compiled with 
+Software built and packaged for Linux distributions is often compiled with
 different defaults and non-standard patches, often deviating significantly
 from the corresponding official upstream release. This usually done to meet
 distribution-specific policies and requirements, but presents a unique hazard

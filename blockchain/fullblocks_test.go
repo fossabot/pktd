@@ -50,9 +50,6 @@ func fileExists(name string) bool {
 // block already inserted.  In addition to the new chain instance, it returns
 // a teardown function the caller should invoke when done testing to clean up.
 func chainSetup(dbName string, params *chaincfg.Params) (*blockchain.BlockChain, func(), er.R) {
-
-	// Handle memory database specially since it doesn't need the disk
-	// specific handling.
 	var db database.DB
 	var teardown func()
 		// Create the root directory for test databases.

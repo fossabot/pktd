@@ -215,9 +215,8 @@ func IsRoutable(na *wire.NetAddress) bool {
 }
 
 // GroupKey returns a string representing the network group an address is part
-// of.  This is the /16 for IPv4, the /32 (/36 for he.net) for IPv6, the string
-// "local" for a local address, and the string "unroutable" for an 
-// unroutable address.
+// of. This is the /16 for IPv4, the /32 (/36 for HE.net) for IPv6, the string
+// local for local address, and the string unroutable for unroutable address.
 func GroupKey(na *wire.NetAddress) string {
 	if IsLocal(na) {
 		return "local"

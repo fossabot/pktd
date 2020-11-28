@@ -57,8 +57,6 @@ func loadBlocks(filename string) (blocks []*btcutil.Block, err er.R) {
 // block already inserted.  In addition to the new chain instance, it returns
 // a teardown function the caller should invoke when done testing to clean up.
 func chainSetup(dbName string, params *chaincfg.Params) (*BlockChain, func(), er.R) {
-	// Handle memory database specially since it doesn't need the disk
-	// specific handling.
 	var db database.DB
 	var teardown func()
 		// Create the root directory for test databases.

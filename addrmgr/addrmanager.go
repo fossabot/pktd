@@ -725,7 +725,7 @@ func (a *AddrManager) reset() {
 	}
 }
 
-// HostToNetAddress returns a netaddress given a host address. 
+// HostToNetAddress returns a netaddress given a host address.
 // If the host is not an IP address it will be resolved
 func (a *AddrManager) HostToNetAddress(host string, port uint16, services protocol.ServiceFlag) (*wire.NetAddress, er.R) {
 	var ip net.IP

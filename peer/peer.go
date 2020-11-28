@@ -259,8 +259,8 @@ type Config struct {
 	// reported.
 	NewestBlock HashFunc `json:"-"`
 
-	// HostToNetAddress returns the netaddress for the given host. This can be
-	// nil in  which case the host will be parsed as an IP address.
+	// HostToNetAddress returns the address for the given host. This can
+	// be nil, in which case the host will be parsed as an IP address.
 	HostToNetAddress HostToNetAddrFunc `json:"-"`
 
 	// UserAgentName specifies the user agent name to advertise.  It is
