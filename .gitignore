@@ -19,6 +19,7 @@ _obj
 _test
 vendor
 _vendor
+pending
 
 # Architecture specific extensions/prefixes
 *.[568vq]
