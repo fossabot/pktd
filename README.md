@@ -3,6 +3,7 @@
 ### A blockchain utilizing [PacketCrypt]((https://pkt.cash/PacketCrypt-2020-09-04.pdf)), a new *bandwidth-hard* proof-of-work algorithm.
 
  [![ISC License](http://img.shields.io/badge/license-ISC-blue.svg)](http://Copyfree.org)
+[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Fjohnsonjh%2Fpktd.svg?type=shield)](https://app.fossa.com/projects/git%2Bgithub.com%2Fjohnsonjh%2Fpktd?ref=badge_shield)
  [![PkgGoDev](https://pkg.go.dev/badge/github.com/pkt-cash/pktd)](https://pkg.go.dev/github.com/pkt-cash/pktd)
  [![GoReport](https://goreportcard.com/badge/github.com/johnsonjh/pktd)](https://goreportcard.com/report/github.com/johnsonjh/pktd)
  [![LocCount](https://img.shields.io/tokei/lines/github/johnsonjh/pktd.svg)](https://github.com/XAMPPRocky/tokei)
@@ -10,6 +11,9 @@
  [![CoverageStatus](https://coveralls.io/repos/johnsonjh/pktd/badge.svg?branch=develop)](https://coveralls.io/johnsonjh/pktd?branch=develop)
  [![TickgitTODOs](https://img.shields.io/endpoint?url=https://api.tickgit.com/badge?repo=github.com/pkt-cash/pktd)](https://www.tickgit.com/browse?repo=github.com/pkt-cash/pktd)
 
+
+
+[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Fjohnsonjh%2Fpktd.svg?type=large)](https://app.fossa.com/projects/git%2Bgithub.com%2Fjohnsonjh%2Fpktd?ref=badge_large)
 
 ## pktd
 
