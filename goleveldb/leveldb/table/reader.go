@@ -832,8 +832,7 @@ func (r *Reader) NewLazyIterator(ro *opt.ReadOptions) iterator.Iterator {
 	if r.err != nil {
 		return iterator.NewEmptyIterator(r.err)
 	}
-	var blockIterator *blockIter
-	blockIterator = r.newLazyBlockIter(true)
+	var blockIterator *blockIter = r.newLazyBlockIter(true)
 	index := &indexIter{
 		blockIter: blockIterator,
 		tr:        r,
