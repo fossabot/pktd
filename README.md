@@ -4,12 +4,10 @@
 
  [![ISC License](http://img.shields.io/badge/license-ISC-blue.svg)](http://Copyfree.org)
  [![PkgGoDev](https://pkg.go.dev/badge/github.com/pkt-cash/pktd)](https://pkg.go.dev/github.com/pkt-cash/pktd)
- [![GoReport](https://goreportcard.com/badge/github.com/pkt-cash/pktd)](https://goreportcard.com/report/github.com/pkt-cash/pktd)
- [![GitHubRelease](https://img.shields.io/github/release/pkt-cash/pktd.svg)](https://github.com/pkt-cash/pktd/releases/)
- [![GitHubTag](https://img.shields.io/github/tag/pkt-cash/pktd.svg)](https://github.com/pkt-cash/pktd/tags/)
- [![LocCount](https://img.shields.io/tokei/lines/github/pkt-cash/pktd.svg)](https://github.com/XAMPPRocky/tokei)
- [![GitHubCodeSize](https://img.shields.io/github/languages/code-size/pkt-cash/pktd.svg)](https://github.com/pkt-cash/pktd)
- [![CoverageStatus](https://coveralls.io/repos/pkt-cash/pktd/badge.svg?branch=develop)](https://coveralls.io/pkt-cash/pktd?branch=develop)
+ [![GoReport](https://goreportcard.com/badge/github.com/johnsonjh/pktd)](https://goreportcard.com/report/github.com/johnsonjh/pktd)
+ [![LocCount](https://img.shields.io/tokei/lines/github/johnsonjh/pktd.svg)](https://github.com/XAMPPRocky/tokei)
+ [![GitHubCodeSize](https://img.shields.io/github/languages/code-size/johnsonjh/pktd.svg)](https://github.com/johnsonjh/pktd)
+ [![CoverageStatus](https://coveralls.io/repos/johnsonjh/pktd/badge.svg?branch=develop)](https://coveralls.io/johnsonjh/pktd?branch=develop)
  [![TickgitTODOs](https://img.shields.io/endpoint?url=https://api.tickgit.com/badge?repo=github.com/pkt-cash/pktd)](https://www.tickgit.com/browse?repo=github.com/pkt-cash/pktd)
 
 
@@ -53,7 +51,7 @@ Unlike most cryptocurrency software, `pktd` does *NOT* provide any "built-in"
 wallet capability. This intentional design decision was made to enhance overall
 security and software modularity. While this means you cannot make or receive
 payments using `pktd` directly; this functionality is provided by the bundled,
-but separate, [pktwallet](https://github.com/pkt-cash/pktd/pktwallet) package.
+but separate, [pktwallet](https://github.com/johnsonjh/pktd/pktwallet) package.
 Additional alternative wallet packages are currently under active development.
 
 
@@ -66,9 +64,9 @@ Additional alternative wallet packages are currently under active development.
 ## Building pktd
 
 * Using `git`, clone the project from the repository:
-   * `git clone https://github.com/pkt-cash/pktd`
+   * `git clone https://github.com/johnsonjh/pktd pktd-jhj`
 * Then, use the `do` script to build `pktd`, `pktwallet`, and `pktctl`:
-   * `cd pktd && ./do`
+   * `cd pktd-jhj && ./do`
 
 *Optionally*, run extended tests and generate code coverage reports:
 * Using `go get`, install the `gocov` and `gocov-html` tools into your `GOPATH`
@@ -80,9 +78,9 @@ Additional alternative wallet packages are currently under active development.
 
 ## Bug Reporting
 
-The **GitHub** [**Issue Tracker**](https://github.com/pkt-cash/pktd/issues) is used for this project.
+The **local** GitHub [**Issue Tracker**](https://github.com/johnsonjh/pktd/issues) is used for this project - do **not** report bugs in this fork upstream.
 
-  * All users submitting a [new bug report](https://github.com/pkt-cash/pktd/issues/new/choose) should attach the output of:
+  * All users submitting a [new bug report](https://github.com/johnonjh/pktd/issues/new/choose) should attach the output of:
      * `go version`, `go env`
      * `git describe --tags --always --abbrev=40`, `git status -s -b`
   * macOS X users should attach the output of:
@@ -142,7 +140,7 @@ The same **GoDoc** documentation is also available at
 [pkg.go.dev/github.com/pkt-cash/pktd](https://pkg.go.dev/github.com/pkt-cash/pktd),
 which does not require a local copy of the source code, or the `godoc` tool installed.
 
-There is also documentation in the [docs](https://github.com/pkt-cash/pktd/tree/develop/docs)
+There is also documentation in the [docs](https://github.com/johnsonjh/pktd/tree/develop/docs)
 directory of the source tree available for review.
 
 
