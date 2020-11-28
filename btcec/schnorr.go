@@ -250,7 +250,7 @@ func schnorrVerify(msg, publicKey, signature []byte) (bool, error) {
 	e := new(big.Int)
 
 	// Get Point P from the x-coordinate.
-	Px, Py, err := liftX(publicKey[:])
+	Px, Py, err := liftX(publicKey)
 	if err != nil {
 		return false, err
 	}
