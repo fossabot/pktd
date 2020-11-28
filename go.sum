@@ -6,6 +6,8 @@ github.com/aead/siphash v1.0.1 h1:FwHfE/T45KPKYuuSAKyyvE+oPWcaQ+CUmFW0bPlM+kg=
 github.com/aead/siphash v1.0.1/go.mod h1:Nywa3cDsYNNK3gaciGTWPwHt0wlpNV15vwmswBAUSII=
 github.com/arl/statsviz v0.2.2-0.20201115121518-5ea9f0cf1bd1 h1:k6L9CoSCgZjUXhMhJgmaMx2WhW54cpBKHBoa6tmDcKg=
 github.com/arl/statsviz v0.2.2-0.20201115121518-5ea9f0cf1bd1/go.mod h1:Dg/DhcWPSzBVk70gVbZWcymzHDkYRhVpeScx5l+Zj7o=
+github.com/arl/statsviz v0.2.2-0.20201124191121-aeacce1395b7 h1:Qzru95vU+9IkK7f0bab6myxFdjMdugOjfiNUZmGtidE=
+github.com/arl/statsviz v0.2.2-0.20201124191121-aeacce1395b7/go.mod h1:Dg/DhcWPSzBVk70gVbZWcymzHDkYRhVpeScx5l+Zj7o=
 github.com/btcsuite/winsvc v1.0.0 h1:J9B4L7e3oqhXOcm+2IuNApwzQec85lE+QaikUcCs+dk=
 github.com/btcsuite/winsvc v1.0.0/go.mod h1:jsenWakMcC0zFBFurPLEAyrnc/teJEM1O46fmI40EZs=
 github.com/census-instrumentation/opencensus-proto v0.2.1/go.mod h1:f6KPmirojxKA12rnyqOA5BBL4O983OfeGPqjHWSTneU=
@@ -80,6 +82,7 @@ github.com/onsi/gomega v1.7.1/go.mod h1:XdKZgCCFLUoM/7CFJVPcG8C1xQ1AJ0vpAezJrB7J
 github.com/onsi/gomega v1.10.1/go.mod h1:iN09h71vgCQne3DLsj+A5owkum+a2tYe+TOCB1ybHNo=
 github.com/onsi/gomega v1.10.3 h1:gph6h/qe9GSUw1NhH1gp+qb+h8rXD8Cy60Z32Qw3ELA=
 github.com/onsi/gomega v1.10.3/go.mod h1:V9xEwhxec5O8UDM77eCW8vLymOMltsqPVYWrpDsH8xc=
+github.com/pkt-cash/pktd/goleveldb v0.0.0-20201116192819-bd3839cc6cce h1:7CS1B6FhSq1634YGuZOei/90iHjfFlNJDjay3Ch6Amc=
 github.com/pmezard/go-difflib v1.0.0 h1:4DBwDE0NGyQoBHbLQYPwSUPoCMWR5BEzIk/f1lZbAQM=
 github.com/pmezard/go-difflib v1.0.0/go.mod h1:iKH77koFhYxTK1pcRnkKkqfTogsbg7gZNVY4sRDYZ/4=
 github.com/prometheus/client_model v0.0.0-20190812154241-14fe0d1b01d4/go.mod h1:xMI15A0UPsDsEKsMN9yxemIoYk6Tm2C1GtYGdfGttqA=

@@ -240,25 +240,26 @@ func (tf tFiles) getOverlaps(dst tFiles, icmp *iComparer, umin, umax []byte, ove
 	dst = dst[:0]
 	for i := 0; i < len(tf); {
 		t := tf[i]
+		var oreset bool
 		if t.overlaps(icmp, umin, umax) {
 			if umin != nil && icmp.uCompare(t.imin.ukey(), umin) < 0 {
 				umin = t.imin.ukey()
-				dst = dst[:0]
-				i = 0
-				continue
-			} else if umax != nil && icmp.uCompare(t.imax.ukey(), umax) > 0 {
+				oreset = true
+			}
+			if umax != nil && icmp.uCompare(t.imax.ukey(), umax) > 0 {
 				umax = t.imax.ukey()
 				// Restart search if it is overlapped.
+				oreset = true
+			}
+			if oreset {
 				dst = dst[:0]
 				i = 0
 				continue
 			}
-
 			dst = append(dst, t)
 		}
 		i++
 	}
-
 	return dst
 }
 
@@ -280,7 +281,18 @@ func (tf tFiles) getRange(icmp *iComparer) (imin, imax internalKey) {
 	return
 }
 
-// Creates iterator index from tables.
+// newLazyIterator creates a lazy iterator from the given table.
+func (t *tOps) newLazyIterator(f *tFile, ro *opt.ReadOptions) iterator.Iterator {
+	ch, err := t.open(f)
+	if err != nil {
+		return iterator.NewEmptyIterator(err)
+	}
+	iter := ch.Value().(*table.Reader).NewLazyIterator(ro)
+	iter.SetReleaser(ch)
+	return iter
+}
+
+// bewIndexIterator creates a new iterator indexed from the given table.
 func (tf tFiles) newIndexIterator(tops *tOps, icmp *iComparer, slice *util.Range, ro *opt.ReadOptions) iterator.IteratorIndexer {
 	if slice != nil {
 		var start, limit int
@@ -425,7 +437,6 @@ func (t *tOps) open(f *tFile) (ch *cache.Handle, err error) {
 			return 0, nil
 		}
 		return 1, tr
-
 	})
 	if ch == nil && err == nil {
 		err = ErrClosed

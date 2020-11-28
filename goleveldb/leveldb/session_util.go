@@ -130,7 +130,7 @@ func (s *session) refLoop() {
 		for {
 			// Skip any abandoned version number to prevent blocking processing.
 			if skipAbandoned() {
-				next ++
+				next++
 				continue
 			}
 			// Don't bother the version that has been released.

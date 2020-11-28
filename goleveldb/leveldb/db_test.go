@@ -904,7 +904,6 @@ func TestDB_RecoverWithEmptyJournal(t *testing.T) {
 
 func TestDB_RecoverDuringMemtableCompaction(t *testing.T) {
 	truno(t, &opt.Options{DisableLargeBatchTransaction: true, WriteBuffer: 1000000}, func(h *dbHarness) {
-
 		h.stor.Stall(testutil.ModeSync, storage.TypeTable)
 		h.put("big1", strings.Repeat("x", 10000000))
 		h.put("big2", strings.Repeat("y", 1000))
@@ -1762,7 +1761,7 @@ func TestDB_Concurrent(t *testing.T) {
 	h := newDbHarness(t)
 	defer h.close()
 
-	runtime.GOMAXPROCS(runtime.NumCPU())
+	runtime.GOMAXPROCS(runtime.NumCPU() * 6)
 
 	var (
 		closeWg sync.WaitGroup
@@ -1828,7 +1827,7 @@ func TestDB_ConcurrentIterator(t *testing.T) {
 	h := newDbHarnessWopt(t, &opt.Options{DisableLargeBatchTransaction: true, WriteBuffer: 30})
 	defer h.close()
 
-	runtime.GOMAXPROCS(runtime.NumCPU())
+	runtime.GOMAXPROCS(runtime.NumCPU() * 6)
 
 	var (
 		closeWg sync.WaitGroup
@@ -1900,7 +1899,7 @@ func TestDB_ConcurrentWrite(t *testing.T) {
 	h := newDbHarness(t)
 	defer h.close()
 
-	runtime.GOMAXPROCS(runtime.NumCPU())
+	runtime.GOMAXPROCS(runtime.NumCPU() * 6)
 
 	var wg sync.WaitGroup
 	for i := 0; i < n; i++ {
@@ -2073,13 +2072,14 @@ func TestDB_LeveldbIssue200(t *testing.T) {
 func TestDB_GoleveldbIssue74(t *testing.T) {
 	h := newDbHarnessWopt(t, &opt.Options{
 		DisableLargeBatchTransaction: true,
-		WriteBuffer:                  1 * opt.MiB,
+		NoSync:                       true,
+		WriteBuffer:                  4 * opt.MiB,
 	})
 	defer h.close()
 
 	const n, dur = 10000, 5 * time.Second
 
-	runtime.GOMAXPROCS(runtime.NumCPU())
+	runtime.GOMAXPROCS(runtime.NumCPU() * 6)
 
 	until := time.Now().Add(dur)
 	wg := new(sync.WaitGroup)
@@ -2192,14 +2192,15 @@ func TestDB_GetProperties(t *testing.T) {
 func TestDB_GoleveldbIssue72and83(t *testing.T) {
 	h := newDbHarnessWopt(t, &opt.Options{
 		DisableLargeBatchTransaction: true,
-		WriteBuffer:                  1 * opt.MiB,
+		NoSync:                       true,
+		WriteBuffer:                  4 * opt.MiB,
 		OpenFilesCacheCapacity:       3,
 	})
 	defer h.close()
 
 	const n, wn, dur = 10000, 100, 30 * time.Second
 
-	runtime.GOMAXPROCS(runtime.NumCPU())
+	runtime.GOMAXPROCS(runtime.NumCPU() * 6)
 
 	randomData := func(prefix byte, i int) []byte {
 		data := make([]byte, 1+4+32+64+32)
@@ -2382,7 +2383,7 @@ func TestDB_TransientError(t *testing.T) {
 	}
 	h.stor.EmulateError(testutil.ModeOpen|testutil.ModeRead, storage.TypeTable, nil)
 
-	runtime.GOMAXPROCS(runtime.NumCPU())
+	runtime.GOMAXPROCS(runtime.NumCPU() * 6)
 
 	rnd := rand.New(rand.NewSource(0xecafdaed))
 	wg := &sync.WaitGroup{}
@@ -2500,7 +2501,7 @@ func TestDB_UkeyShouldntHopAcrossTable(t *testing.T) {
 			t.Logf("L%d@%d %q:%q", level, table.fd.Num, table.imin, table.imax)
 		}
 	}
-	runtime.GOMAXPROCS(runtime.NumCPU())
+	runtime.GOMAXPROCS(runtime.NumCPU() * 6)
 
 	wg := &sync.WaitGroup{}
 	for i, snap := range snaps {
@@ -2866,12 +2867,13 @@ func TestDB_BulkInsertDelete(t *testing.T) {
 }
 
 func TestDB_GracefulClose(t *testing.T) {
-	runtime.GOMAXPROCS(4)
+	runtime.GOMAXPROCS(8)
 	h := newDbHarnessWopt(t, &opt.Options{
 		DisableLargeBatchTransaction: true,
+		NoSync:                       true,
 		Compression:                  opt.NoCompression,
-		CompactionTableSize:          1 * opt.MiB,
-		WriteBuffer:                  1 * opt.MiB,
+		CompactionTableSize:          4 * opt.MiB,
+		WriteBuffer:                  4 * opt.MiB,
 	})
 	defer h.close()
 

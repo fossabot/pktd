@@ -35,7 +35,7 @@ func newDbCorruptHarnessWopt(t *testing.T, o *opt.Options) *dbCorruptHarness {
 
 func newDbCorruptHarness(t *testing.T) *dbCorruptHarness {
 	return newDbCorruptHarnessWopt(t, &opt.Options{
-		BlockCacheCapacity: 100,
+		BlockCacheCapacity: 128,
 		Strict:             opt.StrictJournalChecksum,
 	})
 }
@@ -481,17 +481,18 @@ func TestCorruptDB_RecoverTable(t *testing.T) {
 	defer h.close()
 
 	h.build(1000)
+	fmt.Println("----------------------- COMPACTMEM --------------------------")
 	h.compactMem()
 	fmt.Println("------------------------- RANGE 0 ---------------------------")
 	h.compactRangeAt(0, "", "")
 	fmt.Println("------------------------- RANGE 1 ---------------------------")
 	h.compactRangeAt(1, "", "")
 	seq := h.db.seq
-	time.Sleep(100 * time.Millisecond) // Wait lazy reference finish tasks
-	fmt.Println("------------------------- RANGE DONE ---------------------------")
-
+	rand.Seed(time.Now().UnixNano())
+	time.Sleep(time.Duration(rand.Intn(100)) * time.Millisecond)
+	fmt.Println("------------------------ RANGE DONE -------------------------")
 	v := h.db.s.version()
-	fmt.Println("====================== FILES ======================")
+	fmt.Println("========================== FILES ============================")
 	for index, level := range v.levels {
 		fmt.Println(">>>>>>> LEVEL", index)
 		for _, f := range level {

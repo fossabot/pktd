@@ -30,22 +30,20 @@ import (
 )
 
 var (
-	src						cryptoSource
-	dbPath                 = path.Join(os.TempDir(), strconv.Itoa(rand.New(src).Int()%9999), strconv.Itoa(rand.New(src).Int()%9999), "-goleveldb-testdb")
-	openFilesCacheCapacity = 500
+	src                    cryptoSource
+	dbPath                 = path.Join(os.TempDir(), "goleveldb", strconv.Itoa(rand.New(src).Int()%99999), strconv.Itoa(rand.New(src).Int()%99999), strconv.Itoa(rand.New(src).Int()%99999), "testdb")
+	openFilesCacheCapacity = 512
 	keyLen                 = 63
-	valueLen               = 256
+	valueLen               = 512
 	numKeys                = arrayInt{100000, 1332, 531, 1234, 9553, 1024, 35743}
 	httpProf               = "127.0.0.1:5454"
-	transactionProb        = 0.5
+	transactionProb        = 0.4
 	enableBlockCache       = false
 	enableCompression      = false
 	enableBufferPool       = false
-
-	wg         = new(sync.WaitGroup)
-	done, fail uint32
-
-	bpool *util.BufferPool
+	wg                     = new(sync.WaitGroup)
+	done, fail             uint32
+	bpool                  *util.BufferPool
 )
 
 type arrayInt []int
@@ -159,15 +157,20 @@ func (ts *testingStorage) scanTable(fd storage.FileDesc, checksum bool) (corrupt
 	if err != nil {
 		panic(fmt.Sprintf("testingStorage scanTable Open failure: %v", err))
 	}
-	defer r.Close()
-
+	defer func() {
+		cerr := r.Close()
+		if err == nil {
+			err = cerr
+		}
+	}()
 	size, err := r.Seek(0, os.SEEK_END)
 	if err != nil {
 		panic(fmt.Sprintf("testingStorage scanTable Seek failure: %v", err))
 	}
-
 	o := &opt.Options{
 		DisableLargeBatchTransaction: true,
+		BlockCacheEvictRemoved:       true,
+		NoSync:                       true,
 		Strict:                       opt.NoStrict,
 	}
 	if checksum {
@@ -189,7 +192,6 @@ func (ts *testingStorage) scanTable(fd storage.FileDesc, checksum bool) (corrupt
 			atomic.StoreUint32(&fail, 1)
 			atomic.StoreUint32(&done, 1)
 			corrupted = true
-
 			data0, data1 := dataSplit(data)
 			data0c0, data0c1 := dataChecksum(data0)
 			data1c0, data1c1 := dataChecksum(data1)
@@ -303,8 +305,8 @@ func (s *latencyStats) add(x *latencyStats) {
 func main() {
 	flag.Parse()
 
-    var src cryptoSource
-    rnd := rand.New(src)
+	var src cryptoSource
+	rnd := rand.New(src)
 
 	if enableBufferPool {
 		bpool = util.NewBufferPool(opt.DefaultBlockSize + 128)
@@ -321,7 +323,7 @@ func main() {
 		}()
 	}
 
-	runtime.GOMAXPROCS(runtime.NumCPU()*2)
+	runtime.GOMAXPROCS(runtime.NumCPU() * 6)
 
 	os.RemoveAll(dbPath)
 	stor, err := storage.OpenFile(dbPath, false)
@@ -351,6 +353,8 @@ func main() {
 		openFilesCacheCapacity = -1
 	}
 	o := &opt.Options{
+		NoSync:                 true,
+		BlockCacheEvictRemoved: true,
 		OpenFilesCacheCapacity: openFilesCacheCapacity,
 		DisableBufferPool:      !enableBufferPool,
 		DisableBlockCache:      !enableBlockCache,
@@ -638,16 +642,16 @@ func main() {
 
 type cryptoSource struct{}
 
-func (s cryptoSource) Seed(seed int64) {}
+func (s cryptoSource) Seed(_ int64) {}
 
 func (s cryptoSource) Int63() int64 {
-    return int64(s.Uint64() & ^uint64(1<<63))
+	return int64(s.Uint64() & ^uint64(1<<63))
 }
 
 func (s cryptoSource) Uint64() (v uint64) {
-    err := binary.Read(crand.Reader, binary.BigEndian, &v)
-    if err != nil {
-        log.Fatal(err)
-    }
-    return v
+	err := binary.Read(crand.Reader, binary.BigEndian, &v)
+	if err != nil {
+		log.Fatal(err)
+	}
+	return v
 }

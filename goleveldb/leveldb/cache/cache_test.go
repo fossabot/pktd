@@ -57,7 +57,7 @@ type cacheMapTestParams struct {
 }
 
 func TestCacheMap(t *testing.T) {
-	runtime.GOMAXPROCS(runtime.NumCPU())
+	runtime.GOMAXPROCS(runtime.NumCPU() * 6)
 
 	var params []cacheMapTestParams
 	if testing.Short() {

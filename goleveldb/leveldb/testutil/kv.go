@@ -101,7 +101,7 @@ func (kv KeyValue) Index(i int) (key, value []byte) {
 func (kv KeyValue) IndexInexact(i int) (key_, key, value []byte) {
 	key, value = kv.Index(i)
 	var key0 []byte
-	var key1 = kv.KeyAt(i)
+	key1 := kv.KeyAt(i)
 	if i > 0 {
 		key0 = kv.KeyAt(i - 1)
 	}
@@ -343,7 +343,7 @@ func KeyValue_Generate(rnd *rand.Rand, n, incr, minlen, maxlen, vminlen, vmaxlen
 			key[j] = keymap[gen[j]]
 		}
 		value := make([]byte, rrand(vminlen, vmaxlen))
-		for n := copy(value, []byte(fmt.Sprintf("v%d", i))); n < len(value); n++ {
+		for n := copy(value, fmt.Sprintf("v%d", i)); n < len(value); n++ {
 			value[n] = 'x'
 		}
 		kv.Put(key, value)

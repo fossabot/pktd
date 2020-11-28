@@ -38,13 +38,13 @@ const (
 	defaultDataDirname           = "data"
 	defaultLogLevel              = "info"
 	defaultLogDirname            = "logs"
-	defaultMaxPeers              = 125
-	defaultBanDuration           = time.Hour * 24
-	defaultBanThreshold          = 120
+	defaultMaxPeers              = 192
+	defaultBanDuration           = time.Hour * 1
+	defaultBanThreshold          = 128
 	defaultConnectTimeout        = time.Second * 10
-	defaultMaxRPCClients         = 10
-	defaultMaxRPCWebsockets      = 25
-	defaultMaxRPCConcurrentReqs  = 20
+	defaultMaxRPCClients         = 16
+	defaultMaxRPCWebsockets      = 32
+	defaultMaxRPCConcurrentReqs  = 36
 	defaultFreeTxRelayLimit      = 15.0
 	defaultTrickleInterval       = peer.DefaultTrickleInterval
 	defaultBlockMinSize          = 0
@@ -56,9 +56,9 @@ const (
 	blockMaxWeightMin            = 4000
 	blockMaxWeightMax            = blockchain.MaxBlockWeight - 4000
 	defaultGenerate              = false
-	defaultMaxOrphanTransactions = 100
-	defaultMaxOrphanTxSize       = 100000
-	defaultSigCacheMaxSize       = 100000
+	defaultMaxOrphanTransactions = 1024
+	defaultMaxOrphanTxSize       = 256000
+	defaultSigCacheMaxSize       = 256000
 	defaultTxIndex               = false
 	defaultAddrIndex             = false
 )

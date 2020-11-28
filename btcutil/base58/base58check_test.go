@@ -52,8 +52,8 @@ func TestBase58Check(t *testing.T) {
 	if !base58.ErrChecksum.Is(err) {
 		t.Error("Checkdecode test failed, expected ErrChecksum")
 	}
-	// case 2: invalid formats (string lengths below 5 mean the version byte and/or the checksum
-	// bytes are missing).
+	// case 2: invalid formats (string lengths below 5 mean the
+	// version byte and/or the checksum bytes are missing)
 	testString := ""
 	for stlen := 0; stlen < 4; stlen++ {
 		testString = testString + "x"

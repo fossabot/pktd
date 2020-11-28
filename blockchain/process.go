@@ -85,12 +85,13 @@ func (b *BlockChain) blockExists(hash *chainhash.Hash) (bool, er.R) {
 // are needed to pass along to maybeAcceptBlock.
 //
 // This function MUST be called with the chain state lock held (for writes).
-func (b *BlockChain) processOrphans(hash *chainhash.Hash, flags BehaviorFlags) er.R {
+func (b *BlockChain) processOrphans(hash *chainhash.Hash, flags BehaviorFlags) (bool, er.R) {
 	// Start with processing at least the passed hash.  Leave a little room
 	// for additional orphan blocks that need to be processed without
 	// needing to grow the array in the common case.
 	processHashes := make([]*chainhash.Hash, 0, 10)
 	processHashes = append(processHashes, hash)
+	var isAnyProcessedOrphanInMainChain bool
 	for len(processHashes) > 0 {
 		// Pop the first hash to process from the slice.
 		processHash := processHashes[0]
@@ -120,23 +121,23 @@ func (b *BlockChain) processOrphans(hash *chainhash.Hash, flags BehaviorFlags) e
 			i--
 
 			// Potentially accept the block into the block chain.
-			_, err := b.maybeAcceptBlock(orphan.block, flags)
+			isMainChain, err := b.maybeAcceptBlock(orphan.block, flags)
 			if err != nil {
-				// Since we don't want to reject the original block because of
-				// a bad unorphaned child, only return an error if it's not a RuleError.
-				if !ruleerror.Err.Is(err) {
-					return err
+				if ok := ruleerror.Err.Is(err); !ok {
+					log.Warnf("Verification failed for orphan block %s: %s", orphanHash, err)
+					return false, err
 				}
-				log.Warnf("Verification failed for orphan block %s: %s", orphanHash, err)
+				if isMainChain {
+					isAnyProcessedOrphanInMainChain = true
+				}
 			}
-
 			// Add this block to the list of blocks to process so
 			// any orphan blocks that depend on this block are
 			// handled too.
 			processHashes = append(processHashes, orphanHash)
 		}
 	}
-	return nil
+	return isAnyProcessedOrphanInMainChain, nil
 }
 
 // ProcessBlock is the main workhorse for handling insertion of new blocks into
@@ -239,7 +240,6 @@ func (b *BlockChain) ProcessBlock(block *btcutil.Block, flags BehaviorFlags) (bo
 	if !prevHashExists {
 		log.Infof("Adding orphan block %v with parent %v", blockHash, prevHash)
 		b.addOrphanBlock(block)
-
 		return false, true, nil
 	}
 
@@ -253,11 +253,13 @@ func (b *BlockChain) ProcessBlock(block *btcutil.Block, flags BehaviorFlags) (bo
 	// Accept any orphan blocks that depend on this block (they are
 	// no longer orphans) and repeat for those accepted blocks until
 	// there are no more.
-	err = b.processOrphans(blockHash, flags)
+	isAnyProcessedOrphanInMainChain, err := b.processOrphans(blockHash, flags)
 	if err != nil {
 		return false, false, err
 	}
-
+	if isAnyProcessedOrphanInMainChain {
+		isMainChain = true
+	}
 	log.Debugf("Accepted block %v", blockHash)
 
 	return isMainChain, false, nil

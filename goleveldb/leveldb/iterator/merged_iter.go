@@ -66,7 +66,6 @@ func (i *mergedIterator) First() bool {
 		i.err = ErrIterReleased
 		return false
 	}
-
 	for x, iter := range i.iters {
 		switch {
 		case iter.First():

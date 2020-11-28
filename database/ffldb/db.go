@@ -46,8 +46,8 @@ var (
 	bytesMiB = 1024 * 1024
 
 	// minAvailableSpaceUpdate is the minimum space available (in bytes) to
-	// allow a write transaction.  The value is 50 MiB. //XXX make configurable
-	minAvailableSpaceUpdate = 50 * bytesMiB
+	// allow a write transaction. // TODO(jhj) This should be configurable.
+	minAvailableSpaceUpdate = 192 * bytesMiB
 
 	// byteOrder is the preferred byte order used through the database and
 	// block files.  Sometimes big endian will be used to allow ordered byte
@@ -2061,8 +2061,8 @@ func OpenDB(dbPath string, network protocol.BitcoinNet, create bool) (database.D
 		DisableCompactionBackoff: true,
 		DisableSeeksCompaction:   true,
 		WriteL0PauseTrigger:      8,
-		DisableBufferPool:        true,
-		DisableBlockCache:        true,
+		DisableBufferPool:        false,
+		DisableBlockCache:        false,
 		Filter:                   filter.NewBloomFilter(10),
 	}
 	ldb, err := leveldb.OpenFile(metadataDbPath, &opts)

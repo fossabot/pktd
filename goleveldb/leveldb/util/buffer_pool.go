@@ -51,6 +51,9 @@ func (p *BufferPool) Get(n int) []byte {
 		return make([]byte, n)
 	}
 
+	p.mu.Lock()
+	defer p.mu.Unlock()
+
 	atomic.AddUint32(&p.get, 1)
 
 	poolNum := p.poolNum(n)
@@ -129,6 +132,7 @@ func (p *BufferPool) Get(n int) []byte {
 			} else {
 				sizeMissPtr := &p.sizeMiss[poolNum-1]
 				if atomic.AddUint32(sizeMissPtr, 1) == 20 {
+
 					atomic.StoreUint32(sizePtr, uint32(n))
 					atomic.StoreUint32(sizeMissPtr, 0)
 				}
@@ -145,6 +149,8 @@ func (p *BufferPool) Put(b []byte) {
 	if p == nil {
 		return
 	}
+	p.mu.Lock()
+	defer p.mu.Unlock()
 
 	atomic.AddUint32(&p.put, 1)
 
@@ -153,7 +159,6 @@ func (p *BufferPool) Put(b []byte) {
 	case pool <- b:
 	default:
 	}
-
 }
 
 func (p *BufferPool) String() string {

@@ -30,6 +30,9 @@ const (
 	// database type is appended to this value to form the full block
 	// database name.
 	blockDbNamePrefix = "blocks"
+
+	// Is64Bit checks for a 64-bit system
+	Is64Bit = (uint64(^uintptr(0)) == ^uint64(0))
 )
 
 var (
@@ -50,6 +53,10 @@ func pktdMain(serverChan chan<- *server) er.R {
 	// Unconditionally show the version informatin at startup.
 	pktdLog.Infof("Version %s", version.Version())
 
+	if !Is64Bit {
+		pktdLog.Warnf("WARNING: ** UNSUPPORTED PLATFORM ** NON 64-BIT ARCHITECTURE DETECTED!")
+	}
+
 	// Load configuration and parse command line.  This function also
 	// initializes logging and configures it accordingly.
 	tcfg, _, err := loadConfig()
@@ -65,11 +72,7 @@ func pktdMain(serverChan chan<- *server) er.R {
 	// triggered either from an OS signal such as SIGINT (Ctrl+C) or from
 	// another subsystem such as the RPC server.
 	interrupt := interruptListener()
-	defer pktdLog.Info("Shutdown complete")
-
-
-	
-	
+	defer pktdLog.Info("Shutting down pktd")
 
 	// Enable http profiling server if requested.
 	if cfg.Profile != "" {
@@ -79,7 +82,7 @@ func pktdMain(serverChan chan<- *server) er.R {
 			profileRedirect := http.RedirectHandler("/debug/pprof",
 				http.StatusSeeOther)
 			http.Handle("/", profileRedirect)
-			pktdLog.Errorf("%v", http.ListenAndServe(listenAddr, nil))
+			pktdLog.Errorf("Profile server: %v", http.ListenAndServe(listenAddr, nil))
 		}()
 	}
 
@@ -106,16 +109,16 @@ func pktdMain(serverChan chan<- *server) er.R {
 		statsvizRedirect := http.RedirectHandler("/debug/statsviz", http.StatusSeeOther)
 		smux.Handle("/", statsvizRedirect)
 		if err := statsviz.Register(smux, statsviz.Root("/debug/statsviz")); err != nil {
-			pktdLog.Errorf("%v", err)
+			pktdLog.Errorf("StatsViz Error: %v", err)
 		}
 		go func() {
-			pktdLog.Errorf("%v", http.ListenAndServe(statsvizAddr, smux))
+			pktdLog.Errorf("StatsViz: %v", http.ListenAndServe(statsvizAddr, smux))
 		}()
 	}
 
 	// Perform upgrades to pktd as new versions require it.
 	if err := doUpgrades(); err != nil {
-		pktdLog.Errorf("%v", err)
+		pktdLog.Errorf("Block database upgrade failure: %v", err)
 		return err
 	}
 
@@ -130,9 +133,10 @@ func pktdMain(serverChan chan<- *server) er.R {
 		pktdLog.Errorf("%v", err)
 		return err
 	}
+
 	defer func() {
 		// Ensure the database is sync'd and closed on shutdown.
-		pktdLog.Infof("Gracefully shutting down the database...")
+		pktdLog.Infof("Block database shutting down")
 		db.Close()
 	}()
 
@@ -180,9 +184,9 @@ func pktdMain(serverChan chan<- *server) er.R {
 		return err
 	}
 	defer func() {
-		// Shut down in 2 minutes, or just pull the plug.
-		const shutdownTimeout = 2 * time.Minute
-		pktdLog.Infof("Attempting graceful shutdown (%s timeout)...", shutdownTimeout)
+		// Shut down in 5 minutes, or just pull the plug.
+		const shutdownTimeout = 5 * time.Minute
+		pktdLog.Infof("Shutting down all services (%s timeout)", shutdownTimeout)
 		server.Stop()
 		shutdownDone := make(chan struct{})
 		go func() {
@@ -193,11 +197,11 @@ func pktdMain(serverChan chan<- *server) er.R {
 		select {
 		case <-shutdownDone:
 		case <-time.Tick(shutdownTimeout):
-		pktdLog.Errorf("Graceful shutdown in %s failed - forcefully terminating in 5s...", shutdownTimeout)
-		time.Sleep(5 * time.Second)
-		panic("Forcefully terminating the server process...")
+		pktdLog.Errorf("Shutdown within %s failed, attempting forceful termination", shutdownTimeout)
+		time.Sleep(1 * time.Second)
+		panic("Forcefully terminating server process")
 		}
-		srvrLog.Infof("Server shutdown complete")
+		srvrLog.Infof("Server process shutting down")
 	}()
 
 	server.Start()
@@ -254,22 +258,26 @@ func blockDbPath(dbType string) string {
 // databases which consume space on the file system and ensuring the regression
 // test database is clean when in regression test mode.
 func loadBlockDB() (database.DB, er.R) {
-	// The database name is based on the database type.
 	dbPath := blockDbPath("ffldb")
 
 	// The regression test is special in that it needs a clean database for
 	// each run, so remove it now if it already exists.
-	removeRegressionDB(dbPath)
+	err := removeRegressionDB(dbPath)
+	if err != nil {
+		return nil, err
+	}
 
-	pktdLog.Infof("Loading block database from '%s'", dbPath)
+	pktdLog.Infof("Starting up block database (%s)", dbPath)
 	db, err := ffldb.OpenDB(dbPath, activeNetParams.Net, false)
 	if err != nil {
 		// Return the error if it's not because the database doesn't exist.
 		if !database.ErrDbDoesNotExist.Is(err) {
+			pktdLog.Warnf("Block database startup failed")
 			return nil, err
 		}
 
 		// Create the db if it does not exist.
+		pktdLog.Infof("No block metadata exists, starting up new block database")
 		errr := os.MkdirAll(cfg.DataDir, 0700)
 		if errr != nil {
 			return nil, er.E(errr)
@@ -280,7 +288,7 @@ func loadBlockDB() (database.DB, er.R) {
 		}
 	}
 
-	pktdLog.Info("Block database loaded")
+	pktdLog.Info("Block database startup completed successfully")
 	return db, nil
 }
 

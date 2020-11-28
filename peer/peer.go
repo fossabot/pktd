@@ -75,12 +75,11 @@ const (
 
 	// invTrickleSize is the maximum amount of inventory to send in a single
 	// message when trickling inventory to remote peers.
-	maxInvTrickleSize = 1000
+	maxInvTrickleSize = 5120
 
 	// maxKnownInventory is the maximum number of items to keep in the known
-	// inventory cache.  This has been slightly increased over BTCD defaults
-	// to closer match Bitcoin Core behavior, after reducing trickle timing.
-	maxKnownInventory = 1280
+	// inventory cache.  This has been slightly increased from BTCD defaults
+	maxKnownInventory = 8192
 
 	// pingInterval is the interval of time to wait in between sending ping
 	// messages.

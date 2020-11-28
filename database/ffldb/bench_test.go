@@ -17,7 +17,6 @@ import (
 	"github.com/pkt-cash/pktd/btcutil"
 	"github.com/pkt-cash/pktd/chaincfg"
 	"github.com/pkt-cash/pktd/database"
-//	"github.com/pkt-cash/pktd/database/ffldb"
 )
 
 // BenchmarkBlockHeader benchmarks how long it takes to load the mainnet genesis

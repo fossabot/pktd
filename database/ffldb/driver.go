@@ -14,8 +14,6 @@ const (
 	dbType = "ffldb"
 )
 
-// useLogger is the callback provided during driver registration that sets the
-// current logger to the provided one.
-func useLogger(logger pktlog.Logger) {
+func logger(logger pktlog.Logger) {
 	log = logger
 }

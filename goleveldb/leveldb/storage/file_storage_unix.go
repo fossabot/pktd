@@ -11,6 +11,8 @@ package storage
 import (
 	"os"
 	"syscall"
+
+	"golang.org/x/sys/unix"
 )
 
 type unixFileLock struct {
@@ -33,7 +35,7 @@ func newFileLock(path string, readOnly bool) (fl fileLock, err error) {
 	}
 	f, err := os.OpenFile(path, flag, 0)
 	if os.IsNotExist(err) {
-		f, err = os.OpenFile(path, flag|os.O_CREATE, 0644)
+		f, err = os.OpenFile(path, flag|os.O_CREATE, 0o644)
 	}
 	if err != nil {
 		return
@@ -57,6 +59,14 @@ func setFileLock(f *os.File, readOnly, lock bool) error {
 		}
 	}
 	return syscall.Flock(int(f.Fd()), how|syscall.LOCK_NB)
+}
+
+func syncfs(fd int) error {
+	_, _, err := unix.Syscall(unix.SYS_SYNCFS, uintptr(fd), 0, 0)
+	if err != 0 {
+		return err
+	}
+	return nil
 }
 
 func rename(oldpath, newpath string) error {
@@ -90,7 +100,19 @@ func syncDir(name string) error {
 	if err != nil {
 		return err
 	}
-	defer f.Close()
+	defer func() {
+		fd := f.Fd()
+		unix.Sync()
+		serr := syncfs(int(fd))
+		if serr == nil {
+			err = serr
+		} else {
+			cerr := f.Close()
+			if err == nil {
+				err = cerr
+			}
+		}
+	}()
 	if err := f.Sync(); err != nil && !isErrInvalid(err) {
 		return err
 	}
