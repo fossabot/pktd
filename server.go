@@ -278,7 +278,7 @@ func (sp *serverPeer) newestBlock() (*chainhash.Hash, int32, er.R) {
 // the peer to prevent sending duplicate addresses.
 func (sp *serverPeer) addKnownAddresses(addresses []*wire.NetAddress) {
 	sp.addressesMtx.Lock()
-	sp.addressesMtx.Unlock()
+	defer sp.addressesMtx.Unlock()
 	for _, na := range addresses {
 		sp.knownAddresses[addrmgr.NetAddressKey(na)] = struct{}{}
 	}
