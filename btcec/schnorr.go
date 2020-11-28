@@ -105,7 +105,7 @@ func schnorrSign(privKey, msg []byte, a []byte) (sig [64]byte, err error) {
 
 	// Auxiliary data must either be 32 bytes or 0.
 	if l := len(a); l != schnorrAuxLen && l != 0 {
-		return sig, fmt.Errorf("auxillary data is not 32 bytes : got %d, want %d", l, schnorrMessageLen)
+		return sig, fmt.Errorf("auxiliary data is not 32 bytes : got %d, want %d", l, schnorrMessageLen)
 	}
 
 	curve := S256()

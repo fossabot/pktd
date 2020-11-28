@@ -5,7 +5,6 @@
 package main
 
 import (
-	"go.etcd.io/bbolt"
 	"io/ioutil"
 	"net"
 	"net/http"
@@ -16,8 +15,12 @@ import (
 	"sync"
 	"time"
 
+	"go.etcd.io/bbolt"
+
 	"github.com/pkt-cash/pktd/btcutil/er"
 	"github.com/pkt-cash/pktd/pktconfig/version"
+
+	"github.com/arl/statsviz"
 
 	"github.com/pkt-cash/pktd/neutrino"
 	"github.com/pkt-cash/pktd/pktwallet/chain"
@@ -25,12 +28,9 @@ import (
 	"github.com/pkt-cash/pktd/pktwallet/wallet"
 	"github.com/pkt-cash/pktd/pktwallet/walletdb"
 	"github.com/pkt-cash/pktd/pktwallet/walletdb/bdb"
-	"github.com/arl/statsviz"
 )
 
-var (
-	cfg *config
-)
+var cfg *config
 
 func main() {
 	version.SetUserAgentName("pktwallet")
@@ -108,22 +108,22 @@ func walletMain() er.R {
 
 	// Create and start chain RPC client so it's ready to connect to
 	// the wallet when loaded later.
-		go rpcClientConnectLoop(legacyRPCServer, loader)
+	go rpcClientConnectLoop(legacyRPCServer, loader)
 
 	loader.RunAfterLoad(func(w *wallet.Wallet) {
 		startWalletRPCServices(w, rpcs, legacyRPCServer)
 	})
 
-		// Load the wallet database.  It must have been created already
-		// or this will return an appropriate error.
-		_, err = loader.OpenExistingWallet([]byte(cfg.WalletPass), true)
-		if err != nil {
-			log.Error(err)
-			return err
-		}
+	// Load the wallet database.  It must have been created already
+	// or this will return an appropriate error.
+	_, err = loader.OpenExistingWallet([]byte(cfg.WalletPass), true)
+	if err != nil {
+		log.Error(err)
+		return err
+	}
 
 	if legacyRPCServer != nil {
-			<-legacyRPCServer.RequestProcessShutdown()
+		<-legacyRPCServer.RequestProcessShutdown()
 	} else {
 		for {
 			time.Sleep(time.Hour)

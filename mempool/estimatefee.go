@@ -50,11 +50,9 @@ const (
 	bytePerKb = 1000
 )
 
-var (
-	// EstimateFeeDatabaseKey is the key that we use to
-	// store the fee estimator in the database.
-	EstimateFeeDatabaseKey = []byte("estimatefee")
-)
+// EstimateFeeDatabaseKey is the key that we use to
+// store the fee estimator in the database.
+var EstimateFeeDatabaseKey = []byte("estimatefee")
 
 // SatoshiPerByte is number with units of satoshis per byte.
 type SatoshiPerByte float64
@@ -384,7 +382,7 @@ func (ef *FeeEstimator) rollback() {
 
 		bin := ef.bin[blocksToConfirm]
 
-		var counter = replacementCounters[blocksToConfirm]
+		counter := replacementCounters[blocksToConfirm]
 
 		// Continue to go through that bin where we left off.
 		for {
@@ -567,7 +565,7 @@ func (ef *FeeEstimator) EstimateFee(numBlocks uint32) (BtcPerKilobyte, er.R) {
 
 // int confTarget, FeeCalculation *feeCalc, bool conservative
 // This adheres to the API of estimateSmartFee but it is not actually smart.
-func (ef *FeeEstimator) EstimateSmartFee(numBlocks uint32, conservitive bool) btcjson.EstimateSmartFeeResult {
+func (ef *FeeEstimator) EstimateSmartFee(numBlocks uint32, conservative bool) btcjson.EstimateSmartFeeResult {
 	out := btcjson.EstimateSmartFeeResult{}
 	if fpk, err := ef.EstimateFee(numBlocks); err != nil {
 		out.Errors = append(out.Errors, err.Message())

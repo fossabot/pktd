@@ -23,10 +23,11 @@ import (
 	"github.com/pkt-cash/pktd/chaincfg"
 	"github.com/pkt-cash/pktd/chaincfg/genesis"
 	"github.com/pkt-cash/pktd/database"
-//	"github.com/pkt-cash/pktd/database/ffldb"
-	"github.com/pkt-cash/pktd/wire/protocol"
+
+	//	"github.com/pkt-cash/pktd/database/ffldb"
 	"github.com/pkt-cash/pktd/goleveldb/leveldb"
 	ldberrors "github.com/pkt-cash/pktd/goleveldb/leveldb/errors"
+	"github.com/pkt-cash/pktd/wire/protocol"
 )
 
 var (
@@ -126,7 +127,6 @@ type testContext struct {
 // TestConvertErr ensures the leveldb error to database error conversion works
 // as expected.
 func TestConvertErr(t *testing.T) {
-
 	tests := []struct {
 		err         error
 		wantErrCode *er.ErrorCode
@@ -150,7 +150,6 @@ func TestConvertErr(t *testing.T) {
 // TestCornerCases ensures several corner cases which can happen when opening
 // a database and/or block files work as expected.
 func TestCornerCases(t *testing.T) {
-
 	// Create a file at the datapase path to force the open below to fail.
 	dbPath := filepath.Join(os.TempDir(), "ffldb-errors")
 	_ = os.RemoveAll(dbPath)
@@ -189,7 +188,7 @@ func TestCornerCases(t *testing.T) {
 	// the expected error.
 	testName = "writeBlock: open file failure"
 	filePath := blockFilePath(dbPath, 0)
-	if err := os.Mkdir(filePath, 0755); err != nil {
+	if err := os.Mkdir(filePath, 0o755); err != nil {
 		t.Errorf("os.Mkdir: unexpected error: %v", err)
 		return
 	}

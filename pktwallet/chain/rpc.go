@@ -42,7 +42,6 @@ var _ Interface = (*RPCClient)(nil)
 // parameters, the connection will be disconnected.
 func NewRPCClient(chainParams *chaincfg.Params, connect, user, pass string, certs []byte,
 	disableTLS bool, reconnectAttempts int) (*RPCClient, er.R) {
-
 	if reconnectAttempts < 0 {
 		return nil, er.New("reconnectAttempts must be positive")
 	}
@@ -151,13 +150,12 @@ func (c *RPCClient) BlockStamp() (*waddrmgr.BlockStamp, er.R) {
 // FilterBlocks scans the blocks contained in the FilterBlocksRequest for any
 // addresses of interest. For each requested block, the corresponding compact
 // filter will first be checked for matches, skipping those that do not report
-// anything. If the filter returns a postive match, the full block will be
+// anything. If the filter returns a positive match, the full block will be
 // fetched and filtered. This method returns a FilterBlocksReponse for the first
 // block containing a matching address. If no matches are found in the range of
 // blocks requested, the returned response will be nil.
 func (c *RPCClient) FilterBlocks(
 	req *FilterBlocksRequest) (*FilterBlocksResponse, er.R) {
-
 	blockFilterer := NewBlockFilterer(c.chainParams, req)
 
 	// Construct the watchlist using the addresses and outpoints contained

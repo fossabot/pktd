@@ -17,6 +17,8 @@ import (
 
 	"github.com/pkt-cash/pktd/btcutil/er"
 
+	"go.etcd.io/bbolt"
+
 	"github.com/pkt-cash/pktd/btcec"
 	"github.com/pkt-cash/pktd/btcjson"
 	"github.com/pkt-cash/pktd/btcutil"
@@ -33,7 +35,6 @@ import (
 	"github.com/pkt-cash/pktd/rpcclient"
 	"github.com/pkt-cash/pktd/txscript"
 	"github.com/pkt-cash/pktd/wire"
-	"go.etcd.io/bbolt"
 )
 
 var (
@@ -406,7 +407,6 @@ func testRescan(harness *neutrinoHarness, t *testing.T) {
 		t.Fatalf("UTXO's script doesn't match expected script for %s",
 			ourOutPoint)
 	}
-
 }
 
 func testStartRescan(harness *neutrinoHarness, t *testing.T) {

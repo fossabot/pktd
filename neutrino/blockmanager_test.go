@@ -17,6 +17,8 @@ import (
 	"github.com/pkt-cash/pktd/btcutil/er"
 	"github.com/pkt-cash/pktd/txscript/opcode"
 
+	"go.etcd.io/bbolt"
+
 	"github.com/pkt-cash/pktd/btcutil/gcs"
 	"github.com/pkt-cash/pktd/btcutil/gcs/builder"
 	"github.com/pkt-cash/pktd/chaincfg"
@@ -29,25 +31,23 @@ import (
 	"github.com/pkt-cash/pktd/pktwallet/walletdb/bdb"
 	"github.com/pkt-cash/pktd/txscript"
 	"github.com/pkt-cash/pktd/wire"
-	"go.etcd.io/bbolt"
 )
 
 // maxHeight is the height we will generate filter headers up to.
 const maxHeight = 20 * uint32(wire.CFCheckptInterval)
 
-// setupBlockManager initialises a blockManager to be used in tests.
+// setupBlockManager initializes a blockManager to be used in tests.
 func setupBlockManager() (*blockManager, headerfs.BlockHeaderStore,
 	*headerfs.FilterHeaderStore, func(), er.R) {
-
 	// Set up the block and filter header stores.
 	tempDir, errr := ioutil.TempDir("", "neutrino")
 	if errr != nil {
 		return nil, nil, nil, nil, er.Errorf("Failed to create "+
 			"temporary directory: %s", errr)
 	}
-    opts := &bbolt.Options{
-        NoFreelistSync: true,
-    }
+	opts := &bbolt.Options{
+		NoFreelistSync: true,
+	}
 	db, err := bdb.OpenDB(tempDir+"/weks.db", true, opts)
 	if err != nil {
 		os.RemoveAll(tempDir)
@@ -120,7 +120,6 @@ type headers struct {
 func generateHeaders(genesisBlockHeader *wire.BlockHeader,
 	genesisFilterHeader *chainhash.Hash,
 	onCheckpoint func(*chainhash.Hash)) (*headers, er.R) {
-
 	var blockHeaders []headerfs.BlockHeader
 	blockHeaders = append(blockHeaders, headerfs.BlockHeader{
 		BlockHeader: genesisBlockHeader,
@@ -215,7 +214,6 @@ func generateHeaders(genesisBlockHeader *wire.BlockHeader,
 // and headers.
 func generateResponses(msgs []wire.Message,
 	headers *headers) ([]*wire.MsgCFHeaders, er.R) {
-
 	// Craft a response for each message.
 	var responses []*wire.MsgCFHeaders
 	for _, msg := range msgs {
@@ -365,7 +363,6 @@ func TestBlockManagerInitialInterval(t *testing.T) {
 		bm.server.queryBatch = func(msgs []wire.Message,
 			f func(*ServerPeer, wire.Message, wire.Message) bool,
 			q <-chan struct{}, qo ...QueryOption) {
-
 			responses, err := generateResponses(msgs, headers)
 			if err != nil {
 				t.Fatalf("unable to generate responses: %v",
@@ -613,7 +610,6 @@ func TestBlockManagerInvalidInterval(t *testing.T) {
 		bm.server.queryBatch = func(msgs []wire.Message,
 			f func(*ServerPeer, wire.Message, wire.Message) bool,
 			q <-chan struct{}, qo ...QueryOption) {
-
 			responses, err := generateResponses(msgs, headers)
 			if err != nil {
 				t.Fatalf("unable to generate responses: %v",
@@ -780,7 +776,6 @@ func (m *mockQueryAccess) queryAllPeers(
 	checkResponse func(sp *ServerPeer, resp wire.Message,
 		quit chan<- struct{}, peerQuit chan<- struct{}),
 	options ...QueryOption) {
-
 	for p, resp := range m.answers {
 		pp, err := peer.NewOutboundPeer(&peer.Config{}, p)
 		if err != nil {
@@ -830,7 +825,6 @@ func TestBlockManagerDetectBadPeers(t *testing.T) {
 			// by not responding to filter requests.
 			filterAnswers: func(p string,
 				answers map[string]wire.Message) {
-
 				if strings.Contains(p, "bad") {
 					return
 				}
@@ -845,7 +839,6 @@ func TestBlockManagerDetectBadPeers(t *testing.T) {
 			// to the filter headers they have sent.
 			filterAnswers: func(p string,
 				answers map[string]wire.Message) {
-
 				filterData := filterBytes
 				if strings.Contains(p, "bad") {
 					filterData, _ = fakeFilter1.NBytes()

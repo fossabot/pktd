@@ -158,7 +158,6 @@ func Create(ns walletdb.ReadWriteBucket) er.R {
 // after processing the given transaction record.
 func (s *Store) updateMinedBalance(ns walletdb.ReadWriteBucket, rec *TxRecord,
 	block *BlockMeta) er.R {
-
 	// Add a debit record for each unspent credit spent by this transaction.
 	// The index is set in each iteration below.
 	spender := indexedIncidence{
@@ -314,19 +313,19 @@ func (s *Store) insertMinedTx(ns walletdb.ReadWriteBucket, rec *TxRecord,
 					transactions = append(transactions, txid)
 				}
 			}
-				// Ideally we would do some sort of transaction rollback operation
-				// but we're dealing with a corrupt db and rollbackTransaction()
-				// is not going to rollback everything it can and ignore what it
-				// can't, instead it will fail with an error when any of the things
-				// it expects to be present are not. Also deleting the tx object
-				// without all of the associated credits and debits is risky because
-				// it can cause errors in other code. So we're just going to detach
-				// it from the block and let it be with the caviats:
-				//
-				// 1. there may be dangling credits and no associated block record
-				//      ForEachUnspentOutput will filter these out
-				// 2. there may be debits which spent credits that should not have
-				//      been spent.
+			// Ideally we would do some sort of transaction rollback operation
+			// but we're dealing with a corrupt db and rollbackTransaction()
+			// is not going to rollback everything it can and ignore what it
+			// can't, instead it will fail with an error when any of the things
+			// it expects to be present are not. Also deleting the tx object
+			// without all of the associated credits and debits is risky because
+			// it can cause errors in other code. So we're just going to detach
+			// it from the block and let it be with the caviats:
+			//
+			// 1. there may be dangling credits and no associated block record
+			//      ForEachUnspentOutput will filter these out
+			// 2. there may be debits which spent credits that should not have
+			//      been spent.
 		}
 	}
 	transactions = append(transactions, rec.Hash)

@@ -33,7 +33,7 @@ const (
 	minInFlightBlocks = 10
 
 	// maxRejectedTxns is the maximum number of rejected transactions
-	// hashes to store in memory. 
+	// hashes to store in memory.
 	maxRejectedTxns = 1200
 
 	// maxRequestedBlocks is the maximum number of requested block
@@ -163,9 +163,9 @@ type peerSyncState struct {
 	requestQueue    []*wire.InvVect
 	requestedTxns   map[chainhash.Hash]struct{}
 	requestedBlocks map[chainhash.Hash]struct{}
-	syncPeerMutex sync.RWMutex
-	syncPeer      *peerpkg.Peer
-	peerStates    map[*peerpkg.Peer]*peerSyncState
+	syncPeerMutex   sync.RWMutex
+	syncPeer        *peerpkg.Peer
+	peerStates      map[*peerpkg.Peer]*peerSyncState
 }
 
 // SyncManager is used to communicate block related messages with peers. The
@@ -200,8 +200,8 @@ type SyncManager struct {
 	nextCheckpoint   *chaincfg.Checkpoint
 
 	// An optional fee estimator.
-	feeEstimator *mempool.FeeEstimator
-	syncPeerMutex  sync.RWMutex
+	feeEstimator  *mempool.FeeEstimator
+	syncPeerMutex sync.RWMutex
 }
 
 func (sm *SyncManager) SyncPeer() *peerpkg.Peer {
@@ -209,7 +209,6 @@ func (sm *SyncManager) SyncPeer() *peerpkg.Peer {
 	defer sm.syncPeerMutex.RUnlock()
 	return sm.syncPeer
 }
-
 
 // resetHeaderState sets the headers-first mode state to values appropriate for
 // syncing from a new peer.
@@ -385,7 +384,6 @@ func (sm *SyncManager) startSync() {
 
 // isSyncCandidate returns true if a peer is a candidate to sync from
 func (sm *SyncManager) isSyncCandidate(peer *peerpkg.Peer) bool {
-
 	// The peer is not a candidate if it's not actually connected.
 	if !peer.Connected() {
 		return false
@@ -435,7 +433,7 @@ func (sm *SyncManager) handleNewPeerMsg(peer *peerpkg.Peer) {
 	}
 
 	if !peer.Connected() {
-	   return
+		return
 	}
 
 	log.Infof("New valid peer %s (%s)", peer, peer.UserAgent())
@@ -666,8 +664,8 @@ func (sm *SyncManager) current() bool {
 	// No matter what chain thinks, if we are below the block we are syncing
 	// to we are not current.
 	if (sm.syncPeer != nil) && (sm.chain.BestSnapshot().Height < sm.syncPeer.LastBlock()) {
-			return false
-		}
+		return false
+	}
 	return true
 }
 
@@ -742,7 +740,7 @@ func (sm *SyncManager) handleBlockMsg(bmsg *blockMsg) {
 		if ruleerror.Err.Is(err) {
 			if !ruleerror.ErrDuplicateBlock.Is(err) {
 				log.Infof("Rejected block %v from %s: %v - disconnecting peer",
-				    blockHash, peer, err)
+					blockHash, peer, err)
 			}
 		} else {
 			log.Errorf("Failed to process block %v: %v",
@@ -1219,13 +1217,13 @@ func (sm *SyncManager) handleInvMsg(imsg *invMsg) {
 				// Skip the transaction if it has already been
 				// rejected.
 				if _, exists := sm.rejectedTxns[iv.Hash]; exists {
-	                log.Infof("Skipping already rejected transaction from %s", peer)
+					log.Infof("Skipping already rejected transaction from %s", peer)
 					continue
 				}
 				// Also skip if it has already been requested, so
 				// we don't end up doing things multiple times.
 				if _, exists := sm.requestedTxns[iv.Hash]; exists {
-	                log.Infof("Skipping already requested transaction from %s", peer)
+					log.Infof("Skipping already requested transaction from %s", peer)
 					continue
 				}
 			}
@@ -1493,7 +1491,6 @@ func (sm *SyncManager) handleBlockchainNotification(notification *blockchain.Not
 		// Register block with the fee estimator, if it exists.
 		if sm.feeEstimator != nil {
 			err := sm.feeEstimator.RegisterBlock(block)
-
 			// If an error is somehow generated then the fee estimator
 			// has entered an invalid state. Since it doesn't know how
 			// to recover, create a new one.

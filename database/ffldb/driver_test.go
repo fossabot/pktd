@@ -24,7 +24,6 @@ import (
 // TestPersistence ensures that values stored are still valid after closing and
 // reopening the database.
 func TestPersistence(t *testing.T) {
-
 	// Create a new database to run tests against.
 	dbPath := filepath.Join(os.TempDir(), "ffldb-persistencetest")
 	_ = os.RemoveAll(dbPath)
@@ -129,7 +128,6 @@ func TestPersistence(t *testing.T) {
 
 // TestInterface performs all interfaces tests for this database driver.
 func TestInterface(t *testing.T) {
-
 	// Create a new database to run tests against.
 	dbPath := filepath.Join(os.TempDir(), "ffldb-interfacetest")
 	_ = os.RemoveAll(dbPath)
@@ -142,7 +140,7 @@ func TestInterface(t *testing.T) {
 	defer db.Close()
 
 	// Run all of the interface tests against the database.
-	runtime.GOMAXPROCS(runtime.NumCPU()*6)
+	runtime.GOMAXPROCS(runtime.NumCPU() * 6)
 
 	// Change the maximum file size to a small value to force multiple flat
 	// files with the test data set.

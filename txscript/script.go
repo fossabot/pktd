@@ -265,7 +265,6 @@ func removeOpcodeByData(pkscript []parsescript.ParsedOpcode, data []byte) []pars
 		}
 	}
 	return retScript
-
 }
 
 // calcHashPrevOuts calculates a single hash of all the previous outputs
@@ -335,7 +334,6 @@ func calcHashOutputs(tx *wire.MsgTx) chainhash.Hash {
 // the produced signature to be invalid.
 func calcWitnessSignatureHash(subScript []parsescript.ParsedOpcode, sigHashes *TxSigHashes,
 	hashType params.SigHashType, tx *wire.MsgTx, idx int, amt int64) ([]byte, er.R) {
-
 	// As a sanity check, ensure the passed input index for the transaction
 	// is valid.
 	if idx > len(tx.TxIn)-1 {

@@ -12,11 +12,12 @@ import (
 	"testing"
 	"time"
 
+	"go.etcd.io/bbolt"
+
 	"github.com/pkt-cash/pktd/btcutil/er"
 	"github.com/pkt-cash/pktd/chaincfg"
 	"github.com/pkt-cash/pktd/pktwallet/walletdb"
 	"github.com/pkt-cash/pktd/pktwallet/walletdb/bdb"
-	"go.etcd.io/bbolt"
 )
 
 var (

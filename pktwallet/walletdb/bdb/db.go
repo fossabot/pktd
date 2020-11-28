@@ -11,8 +11,9 @@ import (
 
 	"github.com/pkt-cash/pktd/btcutil/er"
 
-	"github.com/pkt-cash/pktd/pktwallet/walletdb"
 	"go.etcd.io/bbolt"
+
+	"github.com/pkt-cash/pktd/pktwallet/walletdb"
 )
 
 // convertErr converts some bolt errors to the equivalent walletdb error.
@@ -401,6 +402,6 @@ func OpenDB(dbPath string, create bool, options *bbolt.Options) (walletdb.DB, er
 			}
 		}
 	}
-	boltDB, err := bbolt.Open(dbPath, 0600, options)
+	boltDB, err := bbolt.Open(dbPath, 0o600, options)
 	return (*db)(boltDB), convertErr(err)
 }

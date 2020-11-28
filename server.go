@@ -357,9 +357,9 @@ func (sp *serverPeer) addBanScore(persistent, transient uint32, reason string) b
 		peerLog.Warnf("Misbehaving peer %s: %s -- ban score increased to %d",
 			sp, reason, score)
 		if sp.isWhitelisted {
-	        peerLog.Debugf("Misbehaving peer %s is whitelisted", sp)
+			peerLog.Debugf("Misbehaving peer %s is whitelisted", sp)
 			return false
-	    }
+		}
 		if score > cfg.BanThreshold {
 			peerLog.Warnf("Misbehaving peer %s -- banning and disconnecting",
 				sp)
@@ -573,7 +573,7 @@ func (sp *serverPeer) OnInv(_ *peer.Peer, msg *wire.MsgInv) {
 			if sp.ProtocolVersion() >= protocol.BIP0037Version {
 				peerLog.Infof("Peer %v is announcing "+
 					"transactions -- disconnecting", sp)
-				//sp.Disconnect() // No longer disconnect per Core.
+				// sp.Disconnect() // No longer disconnect per Core.
 				return
 			}
 			continue
@@ -610,7 +610,7 @@ func (sp *serverPeer) OnGetData(_ *peer.Peer, msg *wire.MsgGetData) {
 	// bursts of small requests are not penalized as that would potentially ban
 	// peers performing IBD.
 	// This incremental score decays each minute to half of its value.
-	if sp.addBanScore(0, (((uint32(length/128))/(uint32(wire.MaxInvPerMsg/4095)))), "getdata") {
+	if sp.addBanScore(0, ((uint32(length / 128)) / (uint32(wire.MaxInvPerMsg / 4095))), "getdata") {
 		return
 	}
 
@@ -1084,9 +1084,9 @@ func (sp *serverPeer) enforceNodeBloomFlag(cmd string) bool {
 		// whether or not banning is enabled, it is checked here as well.
 		if sp.ProtocolVersion() >= protocol.BIP0111Version &&
 			!cfg.DisableBanning {
-				sp.addBanScore(150, 0, cmd)
-				sp.Disconnect()
-				return false
+			sp.addBanScore(150, 0, cmd)
+			sp.Disconnect()
+			return false
 		}
 		return false
 	}
@@ -1101,7 +1101,7 @@ func (sp *serverPeer) OnFeeFilter(_ *peer.Peer, msg *wire.MsgFeeFilter) {
 	// Check that the passed minimum fee is a valid amount.
 	if msg.MinFee < 0 || msg.MinFee > int64(btcutil.MaxUnits()) {
 		peerLog.Debugf("Peer %v sent an invalid feefilter '%v'", sp, btcutil.Amount(msg.MinFee))
-		//sp.Disconnect() // Do not disconnect now, per Core.
+		// sp.Disconnect() // Do not disconnect now, per Core.
 		return
 	}
 
@@ -1321,7 +1321,7 @@ func randomUint16Number(max uint16) uint16 {
 	// from a random source that has a range limited to a multiple of the
 	// modulus.
 	var randomNumber uint16
-	var limitRange = (math.MaxUint16 / max) * max
+	limitRange := (math.MaxUint16 / max) * max
 	for {
 		errr := binary.Read(rand.Reader, binary.LittleEndian, &randomNumber)
 		if errr != nil {
@@ -1396,7 +1396,6 @@ func (s *server) TransactionConfirmed(tx *btcutil.Tx) {
 // connected peer.  An error is returned if the transaction hash is not known.
 func (s *server) pushTxMsg(sp *serverPeer, hash *chainhash.Hash, doneChan chan<- struct{},
 	waitChan <-chan struct{}, encoding wire.MessageEncoding) er.R {
-
 	// Attempt to fetch the requested transaction from the pool.  A
 	// call could be made to check for existence first, but simply trying
 	// to fetch a missing transaction results in the same behavior.
@@ -1425,7 +1424,6 @@ func (s *server) pushTxMsg(sp *serverPeer, hash *chainhash.Hash, doneChan chan<-
 // connected peer.  An error is returned if the block hash is not known.
 func (s *server) pushBlockMsg(sp *serverPeer, hash *chainhash.Hash, doneChan chan<- struct{},
 	waitChan <-chan struct{}, encoding wire.MessageEncoding) er.R {
-
 	// Fetch the raw block bytes from the database.
 	var blockBytes []byte
 	err := sp.server.db.View(func(dbTx database.Tx) er.R {
@@ -1493,7 +1491,6 @@ func (s *server) pushBlockMsg(sp *serverPeer, hash *chainhash.Hash, doneChan cha
 // error is returned if the block hash is not known.
 func (s *server) pushMerkleBlockMsg(sp *serverPeer, hash *chainhash.Hash,
 	doneChan chan<- struct{}, waitChan <-chan struct{}, encoding wire.MessageEncoding) er.R {
-
 	// Do not send a response if the peer doesn't have a filter loaded.
 	if !sp.filter.IsLoaded() {
 		if doneChan != nil {
@@ -2009,7 +2006,7 @@ func newPeerConfig(sp *serverPeer) *peer.Config {
 			OnAddr:         sp.OnAddr,
 			OnRead:         sp.OnRead,
 			OnWrite:        sp.OnWrite,
-			OnNotFound:		sp.OnNotFound,
+			OnNotFound:     sp.OnNotFound,
 		},
 		NewestBlock:       sp.newestBlock,
 		HostToNetAddress:  sp.server.addrManager.HostToNetAddress,
@@ -2574,7 +2571,6 @@ func setupRPCListeners() ([]net.Listener, er.R) {
 func newServer(listenAddrs, agentBlacklist, agentWhitelist []string,
 	db database.DB, chainParams *chaincfg.Params,
 	interrupt <-chan struct{}) (*server, er.R) {
-
 	services := defaultServices
 	if cfg.NoPeerBloomFilters {
 		services &^= protocol.SFNodeBloom
@@ -3173,7 +3169,6 @@ func mergeCheckpoints(defaultCheckpoints, additional []chaincfg.Checkpoint) []ch
 // 4) Reject all other peers.
 func (sp *serverPeer) HasUndesiredUserAgent(blacklistedAgents,
 	whitelistedAgents []string) bool {
-
 	agent := sp.UserAgent()
 
 	// First, if peer's user agent contains any blacklisted substring, we

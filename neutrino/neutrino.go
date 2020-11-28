@@ -460,7 +460,6 @@ func (sp *ServerPeer) OnAddr(_ *peer.Peer, msg *wire.MsgAddr) {
 // the bytes received by the server.
 func (sp *ServerPeer) OnRead(_ *peer.Peer, bytesRead int, msg wire.Message,
 	err er.R) {
-
 	sp.server.AddBytesReceived(uint64(bytesRead))
 
 	// Send a message to each subscriber. Each message gets its own
@@ -509,7 +508,7 @@ type Config struct {
 	DataDir string
 
 	// Database is an *open* database instance that we'll use to storm
-	// indexes of teh chain.
+	// indexes of the chain.
 	Database walletdb.DB
 
 	// ChainParams is the chain that we're running on.
@@ -751,7 +750,6 @@ func NewChainService(cfg Config) (*ChainService, er.R) {
 	var newAddressFunc func() (net.Addr, er.R)
 	if s.chainParams.Net != chaincfg.SimNetParams.Net {
 		newAddressFunc = func() (net.Addr, er.R) {
-
 			// Gather our set of currently connected peers to avoid
 			// connecting to them again.
 			connectedPeers := make(map[string]struct{})
@@ -848,7 +846,6 @@ func NewChainService(cfg Config) (*ChainService, er.R) {
 		GetBlock:     s.GetBlock,
 		BlockFilterMatches: func(ro *rescanOptions,
 			blockHash *chainhash.Hash) (bool, er.R) {
-
 			return blockFilterMatches(
 				&RescanChainSource{&s}, ro, blockHash,
 			)
@@ -1354,7 +1351,6 @@ func (s *ChainService) handleDonePeerMsg(state *peerState, sp *ServerPeer) {
 // from the peerList, and is disconnected from the server.
 func disconnectPeer(peerList map[int32]*ServerPeer,
 	compareFunc func(*ServerPeer) bool, whenFound func(*ServerPeer)) bool {
-
 	for addr, peer := range peerList {
 		if compareFunc(peer) {
 			if whenFound != nil {
@@ -1386,7 +1382,7 @@ func newPeerConfig(sp *ServerPeer) *peer.Config {
 	return &peer.Config{
 		Listeners: peer.MessageListeners{
 			OnVersion: sp.OnVersion,
-			//OnVerAck:    sp.OnVerAck, // Don't use sendheaders yet
+			// OnVerAck:    sp.OnVerAck, // Don't use sendheaders yet
 			OnInv:       sp.OnInv,
 			OnHeaders:   sp.OnHeaders,
 			OnReject:    sp.OnReject,
@@ -1394,7 +1390,6 @@ func newPeerConfig(sp *ServerPeer) *peer.Config {
 			OnAddr:      sp.OnAddr,
 			OnRead:      sp.OnRead,
 			OnWrite:     sp.OnWrite,
-
 		},
 		NewestBlock:      sp.newestBlock,
 		HostToNetAddress: sp.server.addrManager.HostToNetAddress,
@@ -1482,7 +1477,6 @@ func (s *ChainService) peerDoneHandler(sp *ServerPeer) {
 // selection has access to the latest block heights for each peer.
 func (s *ChainService) UpdatePeerHeights(latestBlkHash *chainhash.Hash,
 	latestHeight int32, updateSource *ServerPeer) {
-
 	select {
 	case s.peerHeightsUpdate <- updatePeerHeightsMsg{
 		newHash:    latestBlkHash,

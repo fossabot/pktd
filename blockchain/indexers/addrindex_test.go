@@ -128,7 +128,6 @@ func (b *addrIndexBucket) sanityCheck(addrKey [addrKeySize]byte, expectedTotal i
 		if level == 0 {
 			if (highestLevel != 0 && numEntries == 0) ||
 				numEntries > maxEntries {
-
 				return er.Errorf("level %d has %d entries",
 					level, numEntries)
 			}
@@ -169,7 +168,6 @@ func (b *addrIndexBucket) sanityCheck(addrKey [addrKeySize]byte, expectedTotal i
 // index creates multiple levels as described by the address index
 // documentation.
 func TestAddrIndexLevels(t *testing.T) {
-
 	tests := []struct {
 		name        string
 		key         [addrKeySize]byte

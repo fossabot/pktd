@@ -131,7 +131,7 @@ func (s *ChainService) handleQuery(state *peerState, querymsg interface{}) {
 
 	// Request a list of the persistent (added) peers.
 	case getAddedNodesMsg:
-		// Respond with a slice of the relavent peers.
+		// Respond with a slice of the relevant peers.
 		peers := make([]*ServerPeer, 0, len(state.persistentPeers))
 		for _, sp := range state.persistentPeers {
 			peers = append(peers, sp)
@@ -181,7 +181,6 @@ func (s *ChainService) ConnectedCount() int32 {
 	case <-s.quit:
 		return 0
 	}
-
 }
 
 // OutboundGroupCount returns the number of peers connected to the given

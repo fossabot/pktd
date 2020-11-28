@@ -11,14 +11,13 @@ import (
 )
 
 func TestControlCFHeader(t *testing.T) {
-
 	// We'll modify our backing list of checkpoints for this test.
 	height := uint32(999)
 	header := hashFromStr(
 		"4a242283a406a7c089f671bb8df7671e5d5e9ba577cea1047d30a7f4919df193",
 	)
 	filterHeaderCheckpoints = map[protocol.BitcoinNet]map[uint32]*chainhash.Hash{
-		chaincfg.MainNetParams.Net: map[uint32]*chainhash.Hash{
+		chaincfg.MainNetParams.Net: {
 			height: header,
 		},
 	}

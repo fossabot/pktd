@@ -5,7 +5,7 @@
 package rpcclient
 
 import (
-	"github.com/json-iterator/go"
+	jsoniter "github.com/json-iterator/go"
 
 	"github.com/pkt-cash/pktd/btcutil/er"
 
@@ -41,7 +41,7 @@ func (c *Client) RawRequestAsync(method string, params []jsoniter.RawMessage) Fu
 
 	// Create a raw JSON-RPC request using the provided method and params
 	// and marshal it.  This is done rather than using the sendCmd function
-	// since that relies on marshalling registered btcjson commands rather
+	// since that relies on marshaling registered btcjson commands rather
 	// than custom commands.
 	id := c.NextID()
 	rawRequest := &btcjson.Request{
@@ -50,7 +50,7 @@ func (c *Client) RawRequestAsync(method string, params []jsoniter.RawMessage) Fu
 		Method:  method,
 		Params:  params,
 	}
-	marshalledJSON, errr := jsoniter.Marshal(rawRequest)
+	marshaledJSON, errr := jsoniter.Marshal(rawRequest)
 	if errr != nil {
 		return newFutureError(er.E(errr))
 	}
@@ -58,11 +58,11 @@ func (c *Client) RawRequestAsync(method string, params []jsoniter.RawMessage) Fu
 	// Generate the request and send it along with a channel to respond on.
 	responseChan := make(chan *response, 1)
 	jReq := &jsonRequest{
-		id:             id,
-		method:         method,
-		cmd:            nil,
-		marshalledJSON: marshalledJSON,
-		responseChan:   responseChan,
+		id:            id,
+		method:        method,
+		cmd:           nil,
+		marshaledJSON: marshaledJSON,
+		responseChan:  responseChan,
 	}
 	c.sendRequest(jReq)
 

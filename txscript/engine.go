@@ -186,7 +186,6 @@ func (vm *Engine) executeOpcode(pop *parsescript.ParsedOpcode) er.R {
 	// the minimal data verification flag is set.
 	if vm.dstack.verifyMinimalData && vm.isBranchExecuting() &&
 		pop.Opcode.Value <= opcode.OP_PUSHDATA4 {
-
 		if err := popCheckMinimalDataPush(pop); err != nil {
 			return err
 		}
@@ -601,7 +600,6 @@ func (vm *Engine) checkSignatureEncoding(sig []byte) er.R {
 	if !vm.hasFlag(ScriptVerifyDERSignatures) &&
 		!vm.hasFlag(ScriptVerifyLowS) &&
 		!vm.hasFlag(ScriptVerifyStrictEncoding) {
-
 		return nil
 	}
 
@@ -831,7 +829,6 @@ func (vm *Engine) SetStack(data [][]byte) {
 // engine according to the description provided by each flag.
 func NewEngine(scriptPubKey []byte, tx *wire.MsgTx, txIdx int, flags ScriptFlags,
 	sigCache *SigCache, hashCache *TxSigHashes, inputAmount int64) (*Engine, er.R) {
-
 	// The provided transaction input index must refer to a valid input.
 	if txIdx < 0 || txIdx >= len(tx.TxIn) {
 		str := fmt.Sprintf("transaction input index %d is negative or "+
@@ -859,8 +856,10 @@ func NewEngine(scriptPubKey []byte, tx *wire.MsgTx, txIdx int, flags ScriptFlags
 	// it possible to have a situation where P2SH would not be a soft fork
 	// when it should be. The same goes for segwit which will pull in
 	// additional scripts for execution from the witness stack.
-	vm := Engine{flags: flags, sigCache: sigCache, hashCache: hashCache,
-		inputAmount: inputAmount}
+	vm := Engine{
+		flags: flags, sigCache: sigCache, hashCache: hashCache,
+		inputAmount: inputAmount,
+	}
 	if vm.hasFlag(ScriptVerifyCleanStack) && (!vm.hasFlag(ScriptBip16) &&
 		!vm.hasFlag(ScriptVerifyWitness)) {
 		return nil, txscripterr.ScriptError(txscripterr.ErrInvalidFlags,
@@ -946,7 +945,6 @@ func NewEngine(scriptPubKey []byte, tx *wire.MsgTx, txIdx int, flags ScriptFlags
 			sigPops := vm.scripts[0]
 			if len(sigPops) == 1 && canonicalPush(sigPops[0]) &&
 				IsWitnessProgram(sigPops[0].Data) {
-
 				witProgram = sigPops[0].Data
 			} else {
 				errStr := "signature script for witness " +

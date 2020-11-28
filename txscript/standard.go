@@ -114,7 +114,6 @@ func isPubkeyHash(pops []parsescript.ParsedOpcode) bool {
 		pops[2].Opcode.Value == opcode.OP_DATA_20 &&
 		pops[3].Opcode.Value == opcode.OP_EQUALVERIFY &&
 		pops[4].Opcode.Value == opcode.OP_CHECKSIG
-
 }
 
 // isMultiSig returns true if the passed script is a multisig transaction, false
@@ -264,11 +263,10 @@ type ScriptInfo struct {
 
 // CalcScriptInfo returns a structure providing data about the provided script
 // pair.  It will error if the pair is in someway invalid such that they can not
-// be analysed, i.e. if they do not parse or the pkScript is not a push-only
+// be analyzed, i.e. if they do not parse or the pkScript is not a push-only
 // script
 func CalcScriptInfo(sigScript, pkScript []byte, witness wire.TxWitness,
 	bip16, segwit bool) (*ScriptInfo, er.R) {
-
 	sigPops, err := parsescript.ParseScript(sigScript)
 	if err != nil {
 		return nil, err
@@ -403,6 +401,7 @@ func payToPubKeyHashScriptBuilder(pubKeyHash []byte) *scriptbuilder.ScriptBuilde
 	return scriptbuilder.NewScriptBuilder().AddOp(opcode.OP_DUP).AddOp(opcode.OP_HASH160).
 		AddData(pubKeyHash).AddOp(opcode.OP_EQUALVERIFY).AddOp(opcode.OP_CHECKSIG)
 }
+
 func payToPubKeyHashScript(pubKeyHash []byte) ([]byte, er.R) {
 	return payToPubKeyHashScriptBuilder(pubKeyHash).Script()
 }
@@ -412,6 +411,7 @@ func payToPubKeyHashScript(pubKeyHash []byte) ([]byte, er.R) {
 func payToWitnessPubKeyHashScriptBuilder(pubKeyHash []byte) *scriptbuilder.ScriptBuilder {
 	return scriptbuilder.NewScriptBuilder().AddOp(opcode.OP_0).AddData(pubKeyHash)
 }
+
 func payToWitnessPubKeyHashScript(pubKeyHash []byte) ([]byte, er.R) {
 	return payToWitnessPubKeyHashScriptBuilder(pubKeyHash).Script()
 }
@@ -422,6 +422,7 @@ func payToScriptHashScriptBuilder(scriptHash []byte) *scriptbuilder.ScriptBuilde
 	return scriptbuilder.NewScriptBuilder().AddOp(opcode.OP_HASH160).AddData(scriptHash).
 		AddOp(opcode.OP_EQUAL)
 }
+
 func payToScriptHashScript(scriptHash []byte) ([]byte, er.R) {
 	return payToScriptHashScriptBuilder(scriptHash).Script()
 }
@@ -431,6 +432,7 @@ func payToScriptHashScript(scriptHash []byte) ([]byte, er.R) {
 func payToWitnessScriptHashScriptBuilder(scriptHash []byte) *scriptbuilder.ScriptBuilder {
 	return scriptbuilder.NewScriptBuilder().AddOp(opcode.OP_0).AddData(scriptHash)
 }
+
 func payToWitnessScriptHashScript(scriptHash []byte) ([]byte, er.R) {
 	return payToWitnessScriptHashScriptBuilder(scriptHash).Script()
 }
@@ -530,7 +532,7 @@ func PayToAddrScript(addr btcutil.Address) ([]byte, er.R) {
 	return PayToAddrScriptWithVote(addr, nil, nil)
 }
 
-// stripVote removes any votes from a script so that it will appear as a cannonical
+// stripVote removes any votes from a script so that it will appear as a canonical
 // transaction.
 func stripVote(pops []parsescript.ParsedOpcode) []parsescript.ParsedOpcode {
 	out := make([]parsescript.ParsedOpcode, 0, len(pops))
@@ -719,7 +721,7 @@ func ExtractPkScriptAddrs(pkScript []byte, chainParams *chaincfg.Params) (Script
 	return scriptClass, addrs, requiredSigs, nil
 }
 
-// PkScriptToAddress returns the address corrisponding to a script.
+// PkScriptToAddress returns the address corresponding to a script.
 // Because most multi-signature scripts are segwit and are thus able to be represented as
 // addresses, most scripts are able to be represented directly as addresses, but if there
 // is a script which is not directly parsable, this function will return "script:" followed

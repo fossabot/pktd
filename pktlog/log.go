@@ -297,7 +297,6 @@ func Int(num int) string {
 // If either of the Lshortfile or Llongfile flags are specified, the file named
 // and line number are included after the tag and before the final colon.
 func formatHeader(flags uint32, buf *[]byte, t time.Time, lvl, tag string, file string, line int) bool {
-
 	hasColor := false
 	if flags&Lcolor == Lcolor {
 		hasColor = true

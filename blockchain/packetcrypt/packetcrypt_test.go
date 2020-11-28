@@ -16,10 +16,11 @@ import (
 
 	"github.com/pkt-cash/pktd/blockchain/packetcrypt"
 
+	"golang.org/x/crypto/chacha20poly1305"
+
 	"github.com/pkt-cash/pktd/blockchain/packetcrypt/cryptocycle"
 	"github.com/pkt-cash/pktd/blockchain/testdata"
 	"github.com/pkt-cash/pktd/wire"
-	"golang.org/x/crypto/chacha20poly1305"
 )
 
 func div16Ceil(x int) int {

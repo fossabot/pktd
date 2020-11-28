@@ -7,15 +7,18 @@ package main
 import (
 	"bufio"
 	"encoding/hex"
-	"github.com/json-iterator/go"
 	"fmt"
 	"io/ioutil"
 	"os"
 	"path/filepath"
 	"time"
 
+	jsoniter "github.com/json-iterator/go"
+
 	"github.com/pkt-cash/pktd/btcutil/er"
 	"github.com/pkt-cash/pktd/wire/protocol"
+
+	"go.etcd.io/bbolt"
 
 	"github.com/pkt-cash/pktd/btcec"
 	"github.com/pkt-cash/pktd/btcutil"
@@ -27,7 +30,6 @@ import (
 	"github.com/pkt-cash/pktd/pktwallet/wallet"
 	"github.com/pkt-cash/pktd/pktwallet/wallet/seedwords"
 	"github.com/pkt-cash/pktd/pktwallet/walletdb/bdb"
-	"go.etcd.io/bbolt"
 )
 
 // networkDir returns the directory name of a network directory to hold wallet
@@ -37,7 +39,7 @@ func networkDir(dataDir string, chainParams *chaincfg.Params) string {
 
 	// For now, we must always name the testnet data directory as "testnet"
 	// and not "testnet3" or any other version, as the chaincfg testnet3
-	// paramaters will likely be switched to being named "testnet3" in the
+	// parameters will likely be switched to being named "testnet3" in the
 	// future.  This is done to future proof that change, and an upgrade
 	// plan to move the testnet3 data directory can be worked out later.
 	if chainParams.Net == protocol.TestNet3 {
@@ -126,7 +128,7 @@ func createWallet(cfg *config) er.R {
 	var legacyKeyStore *keystore.Store
 	_, errr := os.Stat(keystorePath)
 	if errr != nil && !os.IsNotExist(errr) {
-		// A stat error not due to a non-existant file should be
+		// A stat error not due to a non-existent file should be
 		// returned to the caller.
 		return er.E(errr)
 	} else if errr == nil {
@@ -349,7 +351,7 @@ func checkCreateDir(path string) er.R {
 	if fi, err := os.Stat(path); err != nil {
 		if os.IsNotExist(err) {
 			// Attempt data directory creation
-			if err = os.MkdirAll(path, 0700); err != nil {
+			if err = os.MkdirAll(path, 0o700); err != nil {
 				return er.Errorf("cannot create directory: %s", err)
 			}
 		} else {

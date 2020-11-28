@@ -403,7 +403,6 @@ func (m *Manager) Close() {
 // mark as gucci?
 func (m *Manager) NewScopedKeyManager(ns walletdb.ReadWriteBucket, scope KeyScope,
 	addrSchema ScopeAddrSchema) (*ScopedKeyManager, er.R) {
-
 	m.mtx.Lock()
 	defer m.mtx.Unlock()
 
@@ -555,7 +554,6 @@ func (m *Manager) NeuterRootKey(ns walletdb.ReadWriteBucket) er.R {
 // pay-to-script-hash addresses.
 func (m *Manager) Address(ns walletdb.ReadBucket,
 	address btcutil.Address) (ManagedAddress, er.R) {
-
 	m.mtx.RLock()
 	defer m.mtx.RUnlock()
 
@@ -605,7 +603,6 @@ func (m *Manager) MarkUsed(ns walletdb.ReadWriteBucket, address btcutil.Address)
 // return the scoped manager that owns the addr+account combo.
 func (m *Manager) AddrAccount(ns walletdb.ReadBucket,
 	address btcutil.Address) (*ScopedKeyManager, uint32, er.R) {
-
 	m.mtx.RLock()
 	defer m.mtx.RUnlock()
 
@@ -651,7 +648,6 @@ func (m *Manager) ForEachActiveAddress(ns walletdb.ReadBucket, fn func(addr btcu
 // the given account stored in the manager, breaking early on error.
 func (m *Manager) ForEachAccountAddress(ns walletdb.ReadBucket, account uint32,
 	fn func(maddr ManagedAddress) er.R) er.R {
-
 	m.mtx.RLock()
 	defer m.mtx.RUnlock()
 
@@ -685,7 +681,6 @@ func (m *Manager) ChainParams() *chaincfg.Params {
 // needed to brute force the passphrase.
 func (m *Manager) ChangePassphrase(ns walletdb.ReadWriteBucket, oldPassphrase,
 	newPassphrase []byte, private bool, config *ScryptOptions) er.R {
-
 	// No private passphrase to change for a watching-only address manager.
 	if private && m.watchingOnly {
 		return ErrWatchingOnly.Default()
@@ -937,7 +932,6 @@ func (m *Manager) ConvertToWatchingOnly(ns walletdb.ReadWriteBucket) er.R {
 	// Mark the manager watching-only.
 	m.watchingOnly = true
 	return nil
-
 }
 
 // IsLocked returns whether or not the address managed is locked.  When it is
@@ -1194,7 +1188,6 @@ func newManager(chainParams *chaincfg.Params, masterKeyPub *snacl.SecretKey,
 	cryptoKeyScriptEncrypted []byte, syncInfo *syncState,
 	birthday time.Time, privPassphraseSalt [saltSize]byte,
 	scopedManagers map[KeyScope]*ScopedKeyManager) *Manager {
-
 	m := &Manager{
 		chainParams:              chainParams,
 		syncState:                *syncInfo,
@@ -1238,7 +1231,6 @@ func newManager(chainParams *chaincfg.Params, masterKeyPub *snacl.SecretKey,
 // m/purpose'/<coin type>'
 func deriveCoinTypeKey(masterNode *hdkeychain.ExtendedKey,
 	scope KeyScope) (*hdkeychain.ExtendedKey, er.R) {
-
 	// Enforce maximum coin type.
 	if scope.Coin > maxCoinType {
 		return nil, ErrCoinTypeTooHigh.Default()
@@ -1277,7 +1269,6 @@ func deriveCoinTypeKey(masterNode *hdkeychain.ExtendedKey,
 //   m/purpose'/<coin type>'/<account>'
 func deriveAccountKey(coinTypeKey *hdkeychain.ExtendedKey,
 	account uint32) (*hdkeychain.ExtendedKey, er.R) {
-
 	// Enforce maximum account number.
 	if account > MaxAccountNum {
 		return nil, ErrAccountNumTooHigh.Default()
@@ -1313,7 +1304,6 @@ func checkBranchKeys(acctKey *hdkeychain.ExtendedKey) er.R {
 // the public keys.
 func loadManager(ns walletdb.ReadBucket, pubPassphrase []byte,
 	chainParams *chaincfg.Params) (*Manager, er.R) {
-
 	// Verify the version is neither too old or too new.
 	version, err := fetchManagerVersion(ns)
 	if err != nil {
@@ -1458,7 +1448,6 @@ func loadManager(ns walletdb.ReadBucket, pubPassphrase []byte,
 // passed manager does not exist in the specified namespace.
 func Open(ns walletdb.ReadBucket, pubPassphrase []byte,
 	chainParams *chaincfg.Params) (*Manager, er.R) {
-
 	// Return an error if the manager has NOT already been created in the
 	// given database namespace.
 	exists := managerExists(ns)
@@ -1476,7 +1465,6 @@ func Open(ns walletdb.ReadBucket, pubPassphrase []byte,
 func createManagerKeyScope(ns walletdb.ReadWriteBucket,
 	scope KeyScope, root *hdkeychain.ExtendedKey,
 	cryptoKeyPub, cryptoKeyPriv EncryptorDecryptor) er.R {
-
 	// Derive the cointype key according to the passed scope.
 	coinTypeKeyPriv, err := deriveCoinTypeKey(root, scope)
 	if err != nil {
@@ -1595,7 +1583,6 @@ func Create(
 	config *ScryptOptions,
 	birthday time.Time,
 ) er.R {
-
 	// Return an error if the manager has already been created in
 	// the given database namespace.
 	exists := managerExists(ns)

@@ -29,6 +29,7 @@ import (
 	jsoniter "github.com/json-iterator/go"
 
 	"github.com/gorilla/websocket"
+
 	"github.com/pkt-cash/pktd/blockchain"
 	"github.com/pkt-cash/pktd/blockchain/indexers"
 	"github.com/pkt-cash/pktd/blockchain/packetcrypt"
@@ -115,6 +116,7 @@ type commandHandler func(*rpcServer, interface{}, <-chan struct{}) (interface{},
 // This is set by init because help references rpcHandlers and thus causes
 // a dependency loop.
 var rpcHandlers map[string]commandHandler
+
 var rpcHandlersBeforeInit = map[string]commandHandler{
 	"addnode":                handleAddNode,
 	"configureminingpayouts": handleConfigureMiningPayouts,
@@ -668,7 +670,6 @@ func createVoutList(mtx *wire.MsgTx, chainParams *chaincfg.Params, filterAddrMap
 func createTxRawResult(chainParams *chaincfg.Params, mtx *wire.MsgTx,
 	txHash string, blkHeader *wire.BlockHeader, blkHash string,
 	blkHeight int32, chainHeight int32) (*btcjson.TxRawResult, er.R) {
-
 	mtxHex, err := messageToHex(mtx)
 	if err != nil {
 		return nil, err
@@ -841,7 +842,6 @@ func handleEstimateFee(s *rpcServer, cmd interface{}, closeChan <-chan struct{})
 	}
 
 	feeRate, err := s.cfg.FeeEstimator.EstimateFee(uint32(c.NumBlocks))
-
 	if err != nil {
 		return -1.0, err
 	}
@@ -857,16 +857,16 @@ func handleEstimateSmartFee(s *rpcServer, cmd interface{}, closeChan <-chan stru
 		return nil, er.New("Fee estimation disabled")
 	}
 
-	conservitive := true
+	conservative := true
 	if c.EstimateMode != nil && *c.EstimateMode == btcjson.EstimateModeEconomical {
-		conservitive = false
+		conservative = false
 	}
 
 	if c.ConfTarget <= 0 {
 		return -1.0, er.New("Parameter NumBlocks must be positive")
 	}
 
-	return s.cfg.FeeEstimator.EstimateSmartFee(uint32(c.ConfTarget), conservitive), nil
+	return s.cfg.FeeEstimator.EstimateSmartFee(uint32(c.ConfTarget), conservative), nil
 }
 
 // handleGenerate handles generate commands.
@@ -1175,7 +1175,7 @@ func handleGetBlock(s *rpcServer, cmd interface{}, closeChan <-chan struct{}) (i
 		retargetEstimate = &re
 	}
 
-	//ComputeNextTarget
+	// ComputeNextTarget
 
 	blockReply := btcjson.GetBlockVerboseResult{
 		Hash:                c.Hash,
@@ -1605,7 +1605,6 @@ func (state *gbtWorkState) NotifyMempoolTx(lastUpdated time.Time) {
 
 		if time.Now().After(state.lastGenerated.Add(time.Second *
 			gbtRegenerateSeconds)) {
-
 			state.notifyLongPollers(state.prevHash, lastUpdated)
 		}
 	}()
@@ -2078,7 +2077,6 @@ func handleGetBlockTemplateRequest(s *rpcServer, request *btcjson.TemplateReques
 }
 
 func handleGetRawBlockTemplate(s *rpcServer, cmd interface{}, closeChan <-chan struct{}) (interface{}, er.R) {
-
 	if len(cfg.miningAddrs) == 0 {
 		return nil, btcjson.NewRPCError(
 			btcjson.ErrRPCInternal,
@@ -4189,16 +4187,16 @@ func parseCmd(request *btcjson.Request) *parsedRPCCmd {
 	return &parsedCmd
 }
 
-func createMarshalledReply(id, result interface{}, jsonErr er.R) ([]byte, er.R) {
+func createMarshaledReply(id, result interface{}, jsonErr er.R) ([]byte, er.R) {
 	return btcjson.MarshalResponse(id, result, jsonErr)
 }
 
 func createResponse(id, result interface{}, jsonErr er.R) (*btcjson.Response, er.R) {
-	marshalledResult, errr := jsoniter.Marshal(result)
+	marshaledResult, errr := jsoniter.Marshal(result)
 	if errr != nil {
 		return nil, er.E(errr)
 	}
-	return btcjson.NewResponse(id, marshalledResult, jsonErr)
+	return btcjson.NewResponse(id, marshaledResult, jsonErr)
 }
 
 func (s *rpcServer) jsonRPCReq(
@@ -4206,7 +4204,6 @@ func (s *rpcServer) jsonRPCReq(
 	closeChan chan struct{},
 	isAdmin bool,
 ) (*btcjson.Response, er.R) {
-
 	var jsonErr er.R
 	var result interface{}
 
@@ -4378,7 +4375,7 @@ func (s *rpcServer) jsonRPCRead(w http.ResponseWriter, r *http.Request, isAdmin 
 		return
 	}
 	if _, err := buf.Write(msg); err != nil {
-		rpcsLog.Errorf("Failed to write marshalled reply: %v", err)
+		rpcsLog.Errorf("Failed to write marshaled reply: %v", err)
 	}
 
 	// Terminate with newline to maintain compatibility with Bitcoin Core.
@@ -4440,10 +4437,10 @@ func (s *rpcServer) Start() {
 		}
 
 		// Attempt to upgrade the connection to a websocket connection.
-		var upgrader = websocket.Upgrader{
+		upgrader := websocket.Upgrader{
 			EnableCompression: true,
-		    ReadBufferSize:  1024,
-		    WriteBufferSize: 1024,
+			ReadBufferSize:    1024,
+			WriteBufferSize:   1024,
 		}
 		ws, errr := upgrader.Upgrade(w, r, nil)
 		if errr != nil {
@@ -4482,14 +4479,14 @@ func genCertPair(certFile, keyFile string) er.R {
 	}
 
 	// Write cert and key files.
-	if errr := ioutil.WriteFile(certFile, cert, 0666); errr != nil {
+	if errr := ioutil.WriteFile(certFile, cert, 0o666); errr != nil {
 		return er.E(errr)
 	}
-	if errr := ioutil.WriteFile(keyFile, key, 0600); errr != nil {
+	if errr := ioutil.WriteFile(keyFile, key, 0o600); errr != nil {
 		perr := os.Remove(certFile)
-			if perr != nil {
-				panic("genCertPair: os.Remove failure")
-			}
+		if perr != nil {
+			panic("genCertPair: os.Remove failure")
+		}
 		return er.E(errr)
 	}
 

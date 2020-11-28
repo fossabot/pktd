@@ -9,8 +9,9 @@ import (
 
 	"github.com/pkt-cash/pktd/btcutil/er"
 
-	"github.com/pkt-cash/pktd/pktwallet/walletdb/bdb"
 	"go.etcd.io/bbolt"
+
+	"github.com/pkt-cash/pktd/pktwallet/walletdb/bdb"
 )
 
 func createTestIndex() (func(), *headerIndex, er.R) {
@@ -89,7 +90,7 @@ func TestAddHeadersIndexRetrieve(t *testing.T) {
 	for i, headerEntry := range headerEntries {
 		height, err := hIndex.heightFromHash(&headerEntry.hash)
 		if err != nil {
-			t.Fatalf("unable to retreive height(%v): %v", i, err)
+			t.Fatalf("unable to retrieve height(%v): %v", i, err)
 		}
 		if height != headerEntry.height {
 			t.Fatalf("height doesn't match: expected %v, got %v",

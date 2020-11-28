@@ -15,6 +15,7 @@ import (
 	"github.com/pkt-cash/pktd/wire/protocol"
 
 	"github.com/davecgh/go-spew/spew"
+
 	"github.com/pkt-cash/pktd/chaincfg/chainhash"
 )
 
@@ -107,7 +108,6 @@ func TestTx(t *testing.T) {
 	if txOut.Value != txValue {
 		t.Errorf("NewTxOut: wrong pk script - got %v, want %v",
 			txOut.Value, txValue)
-
 	}
 	if !bytes.Equal(txOut.PkScript, pkScript) {
 		t.Errorf("NewTxOut: wrong pk script - got %v, want %v",

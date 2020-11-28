@@ -5,22 +5,23 @@
 package rpcclient
 
 import (
-	"os"
 	"bytes"
 	"container/list"
 	"crypto/tls"
 	"crypto/x509"
 	"encoding/base64"
-	"github.com/json-iterator/go"
 	"fmt"
 	"io"
 	"io/ioutil"
 	"math"
 	"net"
 	"net/http"
+	"os"
 	"sync"
 	"sync/atomic"
 	"time"
+
+	jsoniter "github.com/json-iterator/go"
 
 	"github.com/pkt-cash/pktd/btcutil/er"
 
@@ -110,11 +111,11 @@ type sendPostDetails struct {
 // jsonRequest holds information about a json request that is used to properly
 // detect, interpret, and deliver a reply to it.
 type jsonRequest struct {
-	id             uint64
-	method         string
-	cmd            interface{}
-	marshalledJSON []byte
-	responseChan   chan *response
+	id            uint64
+	method        string
+	cmd           interface{}
+	marshaledJSON []byte
+	responseChan  chan *response
 }
 
 // Client represents a Bitcoin RPC client which allows easy access to the
@@ -183,7 +184,7 @@ func (c *Client) NextID() uint64 {
 }
 
 // addRequest associates the passed jsonRequest with its id.  This allows the
-// response from the remote server to be unmarshalled to the appropriate type
+// response from the remote server to be unmarshaled to the appropriate type
 // and sent to the specified channel when it is received.
 //
 // If the client has already begun shutting down, ErrClientShutdown is returned
@@ -260,7 +261,6 @@ func (c *Client) trackRegisteredNtfns(cmd interface{}) {
 			c.ntfnState.notifyNewTxVerbose = true
 		} else {
 			c.ntfnState.notifyNewTx = true
-
 		}
 
 	case *btcjson.NotifySpentCmd:
@@ -289,7 +289,7 @@ type (
 
 	// rawNotification is a partially-unmarshaled JSON-RPC notification.
 	rawNotification struct {
-		Method string            `json:"method"`
+		Method string                `json:"method"`
 		Params []jsoniter.RawMessage `json:"params"`
 	}
 
@@ -297,7 +297,7 @@ type (
 	// to be valid (according to JSON-RPC 1.0 spec), ID may not be nil.
 	rawResponse struct {
 		Result jsoniter.RawMessage `json:"result"`
-		Error  *btcjson.RPCErr `json:"error"`
+		Error  *btcjson.RPCErr     `json:"error"`
 	}
 )
 
@@ -494,10 +494,10 @@ cleanup:
 // sendMessage sends the passed JSON to the connected server using the
 // websocket connection.  It is backed by a buffered channel, so it will not
 // block until the send channel is full.
-func (c *Client) sendMessage(marshalledJSON []byte) {
+func (c *Client) sendMessage(marshaledJSON []byte) {
 	// Don't send the message if disconnected.
 	select {
-	case c.sendChan <- marshalledJSON:
+	case c.sendChan <- marshaledJSON:
 	case <-c.disconnectChan():
 		return
 	}
@@ -623,7 +623,7 @@ func (c *Client) resendRequests() {
 
 		log.Tracef("Sending command [%s] with id %d", jReq.method,
 			jReq.id)
-		c.sendMessage(jReq.marshalledJSON)
+		c.sendMessage(jReq.marshaledJSON)
 	}
 }
 
@@ -706,7 +706,7 @@ out:
 }
 
 // handleSendPostMessage handles performing the passed HTTP request, reading the
-// result, unmarshalling it, and delivering the unmarshalled result to the
+// result, unmarshalling it, and delivering the unmarshaled result to the
 // provided response channel.
 func (c *Client) handleSendPostMessage(details *sendPostDetails) {
 	jReq := details.jsonRequest
@@ -778,7 +778,6 @@ cleanup:
 	}
 	c.wg.Done()
 	log.Tracef("RPC client send handler done for %s", c.config.Host)
-
 }
 
 // sendPostRequest sends the passed HTTP request to the RPC server using the
@@ -829,7 +828,7 @@ func (c *Client) sendPost(jReq *jsonRequest) {
 		protocol = "https"
 	}
 	url := protocol + "://" + c.config.Host
-	bodyReader := bytes.NewReader(jReq.marshalledJSON)
+	bodyReader := bytes.NewReader(jReq.marshaledJSON)
 	httpReq, err := http.NewRequest("POST", url, bodyReader)
 	if err != nil {
 		jReq.responseChan <- &response{result: nil, err: er.E(err)}
@@ -874,14 +873,14 @@ func (c *Client) sendRequest(jReq *jsonRequest) {
 
 	// Add the request to the internal tracking map so the response from the
 	// remote server can be properly detected and routed to the response
-	// channel.  Then send the marshalled request via the websocket
+	// channel.  Then send the marshaled request via the websocket
 	// connection.
 	if err := c.addRequest(jReq); err != nil {
 		jReq.responseChan <- &response{err: err}
 		return
 	}
 	log.Tracef("Sending command [%s] with id %d", jReq.method, jReq.id)
-	c.sendMessage(jReq.marshalledJSON)
+	c.sendMessage(jReq.marshaledJSON)
 }
 
 // sendCmd sends the passed command to the associated server and returns a
@@ -897,7 +896,7 @@ func (c *Client) sendCmd(cmd interface{}) chan *response {
 
 	// Marshal the command.
 	id := c.NextID()
-	marshalledJSON, err := btcjson.MarshalCmd(id, cmd)
+	marshaledJSON, err := btcjson.MarshalCmd(id, cmd)
 	if err != nil {
 		return newFutureError(err)
 	}
@@ -905,11 +904,11 @@ func (c *Client) sendCmd(cmd interface{}) chan *response {
 	// Generate the request and send it along with a channel to respond on.
 	responseChan := make(chan *response, 1)
 	jReq := &jsonRequest{
-		id:             id,
-		method:         method,
-		cmd:            cmd,
-		marshalledJSON: marshalledJSON,
-		responseChan:   responseChan,
+		id:            id,
+		method:        method,
+		cmd:           cmd,
+		marshaledJSON: marshaledJSON,
+		responseChan:  responseChan,
 	}
 	c.sendRequest(jReq)
 
@@ -1083,7 +1082,7 @@ type ConnConfig struct {
 	// CookiePath is the path to a cookie file containing the username and
 	// passphrase to use to authenticate to the RPC server. It is used instead
 	// of the User and Pass, if non-empty. cookieLast* is used for caching.
-	CookiePath string
+	CookiePath          string
 	cookieLastCheckTime time.Time
 	cookieLastModTime   time.Time
 	cookieLastUser      string
@@ -1149,7 +1148,7 @@ func newHTTPClient(config *ConnConfig) (*http.Client, er.R) {
 func dial(config *ConnConfig) (*websocket.Conn, er.R) {
 	// Setup TLS if not disabled.
 	var tlsConfig *tls.Config
-	var scheme = "ws"
+	scheme := "ws"
 	if !config.DisableTLS {
 		tlsConfig = &tls.Config{
 			MinVersion: tls.VersionTLS12,
@@ -1209,36 +1208,36 @@ func dial(config *ConnConfig) (*websocket.Conn, er.R) {
 // if the cookie path is configured; if not, it will be the user-configured
 // username and passphrase.
 func (config *ConnConfig) getAuth() (username, passphrase string, error er.R) {
-   // Try standard authorization first.
-   if config.Pass != "" {
-       return config.User, config.Pass, nil
-   }
+	// Try standard authorization first.
+	if config.Pass != "" {
+		return config.User, config.Pass, nil
+	}
 
-   // Now we try cookie auth
-   return config.retrieveCookie()
+	// Now we try cookie auth
+	return config.retrieveCookie()
 }
 
 // retrieveCookie returns the username and passphrase from the cookie
 func (config *ConnConfig) retrieveCookie() (username, passphrase string, err er.R) {
-   if !config.cookieLastCheckTime.IsZero() && time.Now().Before(config.cookieLastCheckTime.Add(30*time.Second)) {
-       return config.cookieLastUser, config.cookieLastPass, config.cookieLastErr
-   }
+	if !config.cookieLastCheckTime.IsZero() && time.Now().Before(config.cookieLastCheckTime.Add(30*time.Second)) {
+		return config.cookieLastUser, config.cookieLastPass, config.cookieLastErr
+	}
 
-   config.cookieLastCheckTime = time.Now()
-   st, errr := os.Stat(config.CookiePath)
-   if errr != nil {
-       err.AddMessage("Error reading pktcookie file")
-       config.cookieLastErr = er.E(errr)
-       return config.cookieLastUser, config.cookieLastPass, config.cookieLastErr
-   }
+	config.cookieLastCheckTime = time.Now()
+	st, errr := os.Stat(config.CookiePath)
+	if errr != nil {
+		err.AddMessage("Error reading pktcookie file")
+		config.cookieLastErr = er.E(errr)
+		return config.cookieLastUser, config.cookieLastPass, config.cookieLastErr
+	}
 
-   modTime := st.ModTime()
-   if !modTime.Equal(config.cookieLastModTime) {
-       config.cookieLastModTime = modTime
-       config.cookieLastUser, config.cookieLastPass, config.cookieLastErr = readCookieFile(config.CookiePath)
-   }
+	modTime := st.ModTime()
+	if !modTime.Equal(config.cookieLastModTime) {
+		config.cookieLastModTime = modTime
+		config.cookieLastUser, config.cookieLastPass, config.cookieLastErr = readCookieFile(config.CookiePath)
+	}
 
-   return config.cookieLastUser, config.cookieLastPass, config.cookieLastErr
+	return config.cookieLastUser, config.cookieLastPass, config.cookieLastErr
 }
 
 // New creates a new RPC client based on the provided connection configuration

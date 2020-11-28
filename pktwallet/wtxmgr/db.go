@@ -814,7 +814,7 @@ func extractRawDebitCreditKey(v []byte) []byte {
 	return v[8:80]
 }
 
-// existsDebit checks for the existance of a debit.  If found, the debit and
+// existsDebit checks for the existence of a debit.  If found, the debit and
 // previous credit keys are returned.  If the debit does not exist, both keys
 // are nil.
 func existsDebit(ns walletdb.ReadBucket, txHash *chainhash.Hash, index uint32, block *Block) (k, credKey []byte, err er.R) {
@@ -1150,7 +1150,6 @@ func fetchUnminedInputSpendTxHashes(ns walletdb.ReadBucket, k []byte) []chainhas
 // spending transactions for a given input.
 func deleteRawUnminedInput(ns walletdb.ReadWriteBucket, outPointKey []byte,
 	targetSpendHash chainhash.Hash) er.R {
-
 	// We'll start by fetching all of the possible spending transactions.
 	unminedInputs := ns.NestedReadWriteBucket(bucketUnminedInputs)
 	spendHashes := unminedInputs.Get(outPointKey)

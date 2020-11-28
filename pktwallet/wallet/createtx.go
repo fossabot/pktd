@@ -13,6 +13,7 @@ import (
 
 	"github.com/emirpasic/gods/trees/redblacktree"
 	"github.com/emirpasic/gods/utils"
+
 	"github.com/pkt-cash/pktd/btcec"
 	"github.com/pkt-cash/pktd/btcutil"
 	"github.com/pkt-cash/pktd/btcutil/er"
@@ -116,7 +117,6 @@ func (s secretSource) GetScript(addr btcutil.Address) ([]byte, er.R) {
 // the database. A tx created with this set to true will intentionally have no
 // input scripts added and SHOULD NOT be broadcasted.
 func (w *Wallet) txToOutputs(txr CreateTxReq) (tx *txauthor.AuthoredTx, err er.R) {
-
 	chainClient, err := w.requireChainClient()
 	if err != nil {
 		return nil, err
@@ -163,7 +163,7 @@ func (w *Wallet) txToOutputs(txr CreateTxReq) (tx *txauthor.AuthoredTx, err er.R
 		}
 		addrStr = strings.Join(addrs, ", ")
 	}
-	log.Debugf("Found [%d] eligable inputs from addresses [%s], excluded [%d] (unconfirmed) "+
+	log.Debugf("Found [%d] eligible inputs from addresses [%s], excluded [%d] (unconfirmed) "+
 		"and [%d] (too many inputs for tx)",
 		len(eligibleOuts.credits), addrStr, eligibleOuts.unconfirmedCount, eligibleOuts.unusedCount)
 	for _, eo := range eligibleOuts.credits {
@@ -412,7 +412,6 @@ func (w *Wallet) findEligibleOutputs(
 	var winner *amountCount
 
 	if err := w.TxStore.ForEachUnspentOutput(txmgrNs, nil, func(_ []byte, output *wtxmgr.Credit) er.R {
-
 		// Verify that the output is coming from one of the addresses which we accept to spend from
 		// This is inherently expensive to filter at this level and ideally it would be moved into
 		// the database by storing address->credit mappings directly, but after each transaction

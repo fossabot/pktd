@@ -8,9 +8,8 @@ import (
 )
 
 // TestLocateBirthdayBlock ensures we can properly map a block in the chain to a
-//timestamp.
+// timestamp.
 func TestLocateBirthdayBlock(t *testing.T) {
-
 	// We'll use test chains of 30 blocks with a duration between two
 	// consecutive blocks being slightly greater than the largest margin
 	// allowed by locateBirthdayBlock. Doing so lets us test the method more

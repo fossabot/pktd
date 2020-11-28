@@ -13,6 +13,8 @@ import (
 	"time"
 
 	"github.com/davecgh/go-spew/spew"
+	"go.etcd.io/bbolt"
+
 	"github.com/pkt-cash/pktd/btcutil/er"
 	"github.com/pkt-cash/pktd/chaincfg"
 	"github.com/pkt-cash/pktd/chaincfg/chainhash"
@@ -20,7 +22,6 @@ import (
 	"github.com/pkt-cash/pktd/pktwallet/walletdb"
 	"github.com/pkt-cash/pktd/pktwallet/walletdb/bdb"
 	"github.com/pkt-cash/pktd/wire"
-	"go.etcd.io/bbolt"
 )
 
 func createTestBlockHeaderStore() (func(), walletdb.DB, string,
@@ -29,9 +30,9 @@ func createTestBlockHeaderStore() (func(), walletdb.DB, string,
 	if errr != nil {
 		return nil, nil, "", nil, er.E(errr)
 	}
-    opts := &bbolt.Options{
-        NoFreelistSync: true,
-    }
+	opts := &bbolt.Options{
+		NoFreelistSync: true,
+	}
 	dbPath := filepath.Join(tempDir, "test.db")
 	db, err := bdb.OpenDB(dbPath, true, opts)
 	if err != nil {
@@ -463,7 +464,6 @@ func TestFilterHeaderStoreRecovery(t *testing.T) {
 // the ancestors of a particular block, going from a set distance back to the
 // target block.
 func TestBlockHeadersFetchHeaderAncestors(t *testing.T) {
-
 	cleanUp, _, _, bhs, err := createTestBlockHeaderStore()
 	if cleanUp != nil {
 		defer cleanUp()
@@ -525,7 +525,6 @@ func TestBlockHeadersFetchHeaderAncestors(t *testing.T) {
 // delete the current on disk filter header state if a headerStateAssertion is
 // passed in during initialization.
 func TestFilterHeaderStateAssertion(t *testing.T) {
-
 	const chainTip = 10
 	filterHeaderChain := createTestFilterHeaderChain(chainTip)
 	setup := func(t *testing.T) (func(), string, walletdb.DB) {

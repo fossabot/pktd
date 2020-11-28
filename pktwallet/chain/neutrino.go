@@ -27,7 +27,6 @@ type NeutrinoClient struct {
 // ChainService.
 func NewNeutrinoClient(chainParams *chaincfg.Params,
 	chainService *neutrino.ChainService) *NeutrinoClient {
-
 	return &NeutrinoClient{
 		CS:          chainService,
 		stop:        make(chan struct{}),
@@ -126,13 +125,12 @@ func (s *NeutrinoClient) SendRawTransaction(tx *wire.MsgTx, allowHighFees bool) 
 // FilterBlocks scans the blocks contained in the FilterBlocksRequest for any
 // addresses of interest. For each requested block, the corresponding compact
 // filter will first be checked for matches, skipping those that do not report
-// anything. If the filter returns a postive match, the full block will be
+// anything. If the filter returns a positive match, the full block will be
 // fetched and filtered. This method returns a FilterBlocksReponse for the first
 // block containing a matching address. If no matches are found in the range of
 // blocks requested, the returned response will be nil.
 func (s *NeutrinoClient) FilterBlocks(
 	req *FilterBlocksRequest) (*FilterBlocksResponse, er.R) {
-
 	blockFilterer := NewBlockFilterer(s.chainParams, req)
 
 	// Construct the watchlist using the addresses and outpoints contained

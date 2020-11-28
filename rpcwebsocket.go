@@ -12,7 +12,6 @@ import (
 	"crypto/subtle"
 	"encoding/base64"
 	"encoding/hex"
-	"github.com/json-iterator/go"
 	"fmt"
 	"io"
 	"math"
@@ -20,6 +19,8 @@ import (
 	"time"
 
 	"github.com/gorilla/websocket"
+	jsoniter "github.com/json-iterator/go"
+
 	"github.com/pkt-cash/pktd/blockchain"
 	"github.com/pkt-cash/pktd/btcjson"
 	"github.com/pkt-cash/pktd/btcutil"
@@ -61,6 +62,7 @@ type wsCommandHandler func(*wsClient, interface{}) (interface{}, er.R)
 // functions.  This is set by init because help references wsHandlers and thus
 // causes a dependency loop.
 var wsHandlers map[string]wsCommandHandler
+
 var wsHandlersBeforeInit = map[string]wsCommandHandler{
 	"loadtxfilter":              handleLoadTxFilter,
 	"help":                      handleWebsocketHelp,
@@ -84,7 +86,6 @@ var wsHandlersBeforeInit = map[string]wsCommandHandler{
 // satisfying the requirement.
 func (s *rpcServer) WebsocketHandler(conn *websocket.Conn, remoteAddr string,
 	authenticated bool, isAdmin bool) {
-
 	// Clear the read deadline that was set before the websocket hijacked
 	// the connection.
 	conn.SetReadDeadline(timeZeroVal)
@@ -392,32 +393,39 @@ func (f *wsClientFilter) existsUnspentOutPoint(op *wire.OutPoint) bool {
 }
 
 // Notification types
-type notificationBlockConnected btcutil.Block
-type notificationBlockDisconnected btcutil.Block
-type notificationTxAcceptedByMempool struct {
-	isNew bool
-	tx    *btcutil.Tx
-}
+type (
+	notificationBlockConnected      btcutil.Block
+	notificationBlockDisconnected   btcutil.Block
+	notificationTxAcceptedByMempool struct {
+		isNew bool
+		tx    *btcutil.Tx
+	}
+)
 
 // Notification control requests
-type notificationRegisterClient wsClient
-type notificationUnregisterClient wsClient
-type notificationRegisterBlocks wsClient
-type notificationUnregisterBlocks wsClient
-type notificationRegisterNewMempoolTxs wsClient
-type notificationUnregisterNewMempoolTxs wsClient
-type notificationRegisterSpent struct {
-	wsc *wsClient
-	ops []*wire.OutPoint
-}
+type (
+	notificationRegisterClient          wsClient
+	notificationUnregisterClient        wsClient
+	notificationRegisterBlocks          wsClient
+	notificationUnregisterBlocks        wsClient
+	notificationRegisterNewMempoolTxs   wsClient
+	notificationUnregisterNewMempoolTxs wsClient
+	notificationRegisterSpent           struct {
+		wsc *wsClient
+		ops []*wire.OutPoint
+	}
+)
+
 type notificationUnregisterSpent struct {
 	wsc *wsClient
 	op  *wire.OutPoint
 }
+
 type notificationRegisterAddr struct {
 	wsc   *wsClient
 	addrs []string
 }
+
 type notificationUnregisterAddr struct {
 	wsc  *wsClient
 	addr string
@@ -579,7 +587,6 @@ func (m *wsNotificationManager) UnregisterBlockUpdates(wsc *wsClient) {
 // addresses that may be relevant for a client.
 func (m *wsNotificationManager) subscribedClients(tx *btcutil.Tx,
 	clients map[chan struct{}]*wsClient) map[chan struct{}]struct{} {
-
 	// Use a map of client quit channels as keys to prevent duplicates when
 	// multiple inputs and/or outputs are relevant to the client.
 	subscribed := make(map[chan struct{}]struct{})
@@ -638,18 +645,17 @@ func (m *wsNotificationManager) subscribedClients(tx *btcutil.Tx,
 // block updates when a block is connected to the main chain.
 func (*wsNotificationManager) notifyBlockConnected(clients map[chan struct{}]*wsClient,
 	block *btcutil.Block) {
-
 	// Notify interested websocket clients about the connected block.
 	ntfn := btcjson.NewBlockConnectedNtfn(block.Hash().String(), block.Height(),
 		block.MsgBlock().Header.Timestamp.Unix())
-	marshalledJSON, err := btcjson.MarshalCmd(nil, ntfn)
+	marshaledJSON, err := btcjson.MarshalCmd(nil, ntfn)
 	if err != nil {
 		rpcsLog.Errorf("Failed to marshal block connected notification: "+
 			"%v", err)
 		return
 	}
 	for _, wsc := range clients {
-		wsc.QueueNotification(marshalledJSON)
+		wsc.QueueNotification(marshaledJSON)
 	}
 }
 
@@ -666,14 +672,14 @@ func (*wsNotificationManager) notifyBlockDisconnected(clients map[chan struct{}]
 	// Notify interested websocket clients about the disconnected block.
 	ntfn := btcjson.NewBlockDisconnectedNtfn(block.Hash().String(),
 		block.Height(), block.MsgBlock().Header.Timestamp.Unix())
-	marshalledJSON, err := btcjson.MarshalCmd(nil, ntfn)
+	marshaledJSON, err := btcjson.MarshalCmd(nil, ntfn)
 	if err != nil {
 		rpcsLog.Errorf("Failed to marshal block disconnected "+
 			"notification: %v", err)
 		return
 	}
 	for _, wsc := range clients {
-		wsc.QueueNotification(marshalledJSON)
+		wsc.QueueNotification(marshaledJSON)
 	}
 }
 
@@ -681,7 +687,6 @@ func (*wsNotificationManager) notifyBlockDisconnected(clients map[chan struct{}]
 // block updates when a block is connected to the main chain.
 func (m *wsNotificationManager) notifyFilteredBlockConnected(clients map[chan struct{}]*wsClient,
 	block *btcutil.Block) {
-
 	// Create the common portion of the notification that is the same for
 	// every client.
 	var w bytes.Buffer
@@ -712,13 +717,13 @@ func (m *wsNotificationManager) notifyFilteredBlockConnected(clients map[chan st
 		ntfn.SubscribedTxs = subscribedTxs[quitChan]
 
 		// Marshal and queue notification.
-		marshalledJSON, err := btcjson.MarshalCmd(nil, ntfn)
+		marshaledJSON, err := btcjson.MarshalCmd(nil, ntfn)
 		if err != nil {
 			rpcsLog.Errorf("Failed to marshal filtered block "+
 				"connected notification: %v", err)
 			return
 		}
-		wsc.QueueNotification(marshalledJSON)
+		wsc.QueueNotification(marshaledJSON)
 	}
 }
 
@@ -743,14 +748,14 @@ func (*wsNotificationManager) notifyFilteredBlockDisconnected(clients map[chan s
 	}
 	ntfn := btcjson.NewFilteredBlockDisconnectedNtfn(block.Height(),
 		hex.EncodeToString(w.Bytes()))
-	marshalledJSON, err := btcjson.MarshalCmd(nil, ntfn)
+	marshaledJSON, err := btcjson.MarshalCmd(nil, ntfn)
 	if err != nil {
 		rpcsLog.Errorf("Failed to marshal filtered block disconnected "+
 			"notification: %v", err)
 		return
 	}
 	for _, wsc := range clients {
-		wsc.QueueNotification(marshalledJSON)
+		wsc.QueueNotification(marshaledJSON)
 	}
 }
 
@@ -778,18 +783,18 @@ func (m *wsNotificationManager) notifyForNewTx(clients map[chan struct{}]*wsClie
 	}
 
 	ntfn := btcjson.NewTxAcceptedNtfn(txHashStr, btcutil.Amount(amount).ToBTC())
-	marshalledJSON, err := btcjson.MarshalCmd(nil, ntfn)
+	marshaledJSON, err := btcjson.MarshalCmd(nil, ntfn)
 	if err != nil {
 		rpcsLog.Errorf("Failed to marshal tx notification: %s", err.String())
 		return
 	}
 
 	var verboseNtfn *btcjson.TxAcceptedVerboseNtfn
-	var marshalledJSONVerbose []byte
+	var marshaledJSONVerbose []byte
 	for _, wsc := range clients {
 		if wsc.verboseTxUpdates {
-			if marshalledJSONVerbose != nil {
-				wsc.QueueNotification(marshalledJSONVerbose)
+			if marshaledJSONVerbose != nil {
+				wsc.QueueNotification(marshaledJSONVerbose)
 				continue
 			}
 
@@ -801,15 +806,15 @@ func (m *wsNotificationManager) notifyForNewTx(clients map[chan struct{}]*wsClie
 			}
 
 			verboseNtfn = btcjson.NewTxAcceptedVerboseNtfn(*rawTx)
-			marshalledJSONVerbose, err = btcjson.MarshalCmd(nil,
+			marshaledJSONVerbose, err = btcjson.MarshalCmd(nil,
 				verboseNtfn)
 			if err != nil {
 				rpcsLog.Errorf("Failed to marshal verbose tx notification: %s", err)
 				return
 			}
-			wsc.QueueNotification(marshalledJSONVerbose)
+			wsc.QueueNotification(marshaledJSONVerbose)
 		} else {
-			wsc.QueueNotification(marshalledJSON)
+			wsc.QueueNotification(marshaledJSON)
 		}
 	}
 }
@@ -830,7 +835,6 @@ func (m *wsNotificationManager) RegisterSpentRequests(wsc *wsClient, ops []*wire
 // and send a notification when spent to the websocket client wsc.
 func (m *wsNotificationManager) addSpentRequests(opMap map[wire.OutPoint]map[chan struct{}]*wsClient,
 	wsc *wsClient, ops []*wire.OutPoint) {
-
 	for _, op := range ops {
 		// Track the request in the client as well so it can be quickly
 		// be removed on disconnect.
@@ -879,7 +883,6 @@ func (m *wsNotificationManager) UnregisterSpentRequest(wsc *wsClient, op *wire.O
 // key is removed from the map.
 func (*wsNotificationManager) removeSpentRequest(ops map[wire.OutPoint]map[chan struct{}]*wsClient,
 	wsc *wsClient, op *wire.OutPoint) {
-
 	// Remove the request tracking from the client.
 	delete(wsc.spentRequests, *op)
 
@@ -921,7 +924,7 @@ func blockDetails(block *btcutil.Block, txIndex int) *btcjson.BlockDetails {
 	}
 }
 
-// newRedeemingTxNotification returns a new marshalled redeemingtx notification
+// newRedeemingTxNotification returns a new marshaled redeemingtx notification
 // with the passed parameters.
 func newRedeemingTxNotification(txHex string, index int, block *btcutil.Block) ([]byte, er.R) {
 	// Create and marshal the notification.
@@ -935,7 +938,6 @@ func newRedeemingTxNotification(txHex string, index int, block *btcutil.Block) (
 // the client for each matching output.
 func (m *wsNotificationManager) notifyForTxOuts(ops map[wire.OutPoint]map[chan struct{}]*wsClient,
 	addrs map[string]map[chan struct{}]*wsClient, tx *btcutil.Tx, block *btcutil.Block) {
-
 	// Nothing to do if nobody is listening for address notifications.
 	if len(addrs) == 0 {
 		return
@@ -962,7 +964,7 @@ func (m *wsNotificationManager) notifyForTxOuts(ops map[wire.OutPoint]map[chan s
 			ntfn := btcjson.NewRecvTxNtfn(txHex, blockDetails(block,
 				tx.Index()))
 
-			marshalledJSON, err := btcjson.MarshalCmd(nil, ntfn)
+			marshaledJSON, err := btcjson.MarshalCmd(nil, ntfn)
 			if err != nil {
 				rpcsLog.Errorf("Failed to marshal processedtx notification: %v", err)
 				continue
@@ -974,7 +976,7 @@ func (m *wsNotificationManager) notifyForTxOuts(ops map[wire.OutPoint]map[chan s
 
 				if _, ok := wscNotified[wscQuit]; !ok {
 					wscNotified[wscQuit] = struct{}{}
-					wsc.QueueNotification(marshalledJSON)
+					wsc.QueueNotification(marshaledJSON)
 				}
 			}
 		}
@@ -988,18 +990,17 @@ func (m *wsNotificationManager) notifyForTxOuts(ops map[wire.OutPoint]map[chan s
 // notifications.
 func (m *wsNotificationManager) notifyRelevantTxAccepted(tx *btcutil.Tx,
 	clients map[chan struct{}]*wsClient) {
-
 	clientsToNotify := m.subscribedClients(tx, clients)
 
 	if len(clientsToNotify) != 0 {
 		n := btcjson.NewRelevantTxAcceptedNtfn(txHexString(tx.MsgTx()))
-		marshalled, err := btcjson.MarshalCmd(nil, n)
+		marshaled, err := btcjson.MarshalCmd(nil, n)
 		if err != nil {
 			rpcsLog.Errorf("Failed to marshal notification: %v", err)
 			return
 		}
 		for quitChan := range clientsToNotify {
-			clients[quitChan].QueueNotification(marshalled)
+			clients[quitChan].QueueNotification(marshaled)
 		}
 	}
 }
@@ -1009,7 +1010,6 @@ func (m *wsNotificationManager) notifyRelevantTxAccepted(tx *btcutil.Tx,
 // and inputs spending a watched outpoint.
 func (m *wsNotificationManager) notifyForTx(ops map[wire.OutPoint]map[chan struct{}]*wsClient,
 	addrs map[string]map[chan struct{}]*wsClient, tx *btcutil.Tx, block *btcutil.Block) {
-
 	if len(ops) != 0 {
 		m.notifyForTxIns(ops, tx, block)
 	}
@@ -1024,7 +1024,6 @@ func (m *wsNotificationManager) notifyForTx(ops map[wire.OutPoint]map[chan struc
 // requests are removed.
 func (m *wsNotificationManager) notifyForTxIns(ops map[wire.OutPoint]map[chan struct{}]*wsClient,
 	tx *btcutil.Tx, block *btcutil.Block) {
-
 	// Nothing to do if nobody is watching outpoints.
 	if len(ops) == 0 {
 		return
@@ -1038,7 +1037,7 @@ func (m *wsNotificationManager) notifyForTxIns(ops map[wire.OutPoint]map[chan st
 			if txHex == "" {
 				txHex = txHexString(tx.MsgTx())
 			}
-			marshalledJSON, err := newRedeemingTxNotification(txHex, tx.Index(), block)
+			marshaledJSON, err := newRedeemingTxNotification(txHex, tx.Index(), block)
 			if err != nil {
 				rpcsLog.Warnf("Failed to marshal redeemingtx notification: %v", err)
 				continue
@@ -1050,7 +1049,7 @@ func (m *wsNotificationManager) notifyForTxIns(ops map[wire.OutPoint]map[chan st
 
 				if _, ok := wscNotified[wscQuit]; !ok {
 					wscNotified[wscQuit] = struct{}{}
-					wsc.QueueNotification(marshalledJSON)
+					wsc.QueueNotification(marshaledJSON)
 				}
 			}
 		}
@@ -1071,7 +1070,6 @@ func (m *wsNotificationManager) RegisterTxOutAddressRequests(wsc *wsClient, addr
 // spending to any of the addresses in addrs.
 func (*wsNotificationManager) addAddrRequests(addrMap map[string]map[chan struct{}]*wsClient,
 	wsc *wsClient, addrs []string) {
-
 	for _, addr := range addrs {
 		// Track the request in the client as well so it can be quickly be
 		// removed on disconnect.
@@ -1102,7 +1100,6 @@ func (m *wsNotificationManager) UnregisterTxOutAddressRequest(wsc *wsClient, add
 // any transaction outputs send to addr.
 func (*wsNotificationManager) removeAddrRequest(addrs map[string]map[chan struct{}]*wsClient,
 	wsc *wsClient, addr string) {
-
 	// Remove the request tracking from the client.
 	delete(wsc.addrRequests, addr)
 
@@ -1279,7 +1276,7 @@ out:
 			jsonErr := btcjson.NewRPCError(
 				btcjson.ErrRPCParse, "Failed to parse request", er.E(errr))
 
-			reply, err := createMarshalledReply(nil, nil, jsonErr)
+			reply, err := createMarshaledReply(nil, nil, jsonErr)
 			if err != nil {
 				rpcsLog.Errorf("Failed to marshal parse failure "+
 					"reply: %v", err)
@@ -1320,7 +1317,7 @@ out:
 				break out
 			}
 
-			reply, err := createMarshalledReply(cmd.id, nil, cmd.err)
+			reply, err := createMarshaledReply(cmd.id, nil, cmd.err)
 			if err != nil {
 				rpcsLog.Errorf("Failed to marshal parse failure "+
 					"reply: %v", err)
@@ -1360,7 +1357,7 @@ out:
 			c.isAdmin = cmp == 1
 
 			// Marshal and send response.
-			reply, err := createMarshalledReply(cmd.id, nil, nil)
+			reply, err := createMarshaledReply(cmd.id, nil, nil)
 			if err != nil {
 				rpcsLog.Errorf("Failed to marshal authenticate reply: "+
 					"%v", err.String())
@@ -1380,7 +1377,7 @@ out:
 					nil,
 				)
 				// Marshal and send response.
-				reply, err := createMarshalledReply(request.ID, nil, jsonErr)
+				reply, err := createMarshaledReply(request.ID, nil, jsonErr)
 				if err != nil {
 					rpcsLog.Errorf("Failed to marshal parse failure "+
 						"reply: %v", err)
@@ -1425,7 +1422,7 @@ out:
 }
 
 // serviceRequest services a parsed RPC request by looking up and executing the
-// appropriate RPC handler.  The response is marshalled and sent to the
+// appropriate RPC handler.  The response is marshaled and sent to the
 // websocket client.
 func (c *wsClient) serviceRequest(r *parsedRPCCmd) {
 	var (
@@ -1441,7 +1438,7 @@ func (c *wsClient) serviceRequest(r *parsedRPCCmd) {
 	} else {
 		result, err = c.server.standardCmdResult(r, nil)
 	}
-	reply, err := createMarshalledReply(r.id, result, err)
+	reply, err := createMarshaledReply(r.id, result, err)
 	if err != nil {
 		rpcsLog.Errorf("Failed to marshal reply for <%s> "+
 			"command: %v", r.method, err)
@@ -1571,7 +1568,7 @@ cleanup:
 // notifications instead of the this function.  This approach allows a limit to
 // the number of outstanding requests a client can make without preventing or
 // blocking on async notifications.
-func (c *wsClient) SendMessage(marshalledJSON []byte, doneChan chan bool) {
+func (c *wsClient) SendMessage(marshaledJSON []byte, doneChan chan bool) {
 	// Don't send the message if disconnected.
 	if c.Disconnected() {
 		if doneChan != nil {
@@ -1580,7 +1577,7 @@ func (c *wsClient) SendMessage(marshalledJSON []byte, doneChan chan bool) {
 		return
 	}
 
-	c.sendChan <- wsResponse{msg: marshalledJSON, doneChan: doneChan}
+	c.sendChan <- wsResponse{msg: marshaledJSON, doneChan: doneChan}
 }
 
 // ErrClientQuit describes the error where a client send is not processed due
@@ -1596,13 +1593,13 @@ var ErrClientQuit = er.GenericErrorType.Code("main.ErrClientQuit")
 // If the client is in the process of shutting down, this function returns
 // ErrClientQuit.  This is intended to be checked by long-running notification
 // handlers to stop processing if there is no more work needed to be done.
-func (c *wsClient) QueueNotification(marshalledJSON []byte) er.R {
+func (c *wsClient) QueueNotification(marshaledJSON []byte) er.R {
 	// Don't queue the message if disconnected.
 	if c.Disconnected() {
 		return ErrClientQuit.Default()
 	}
 
-	c.ntfnChan <- marshalledJSON
+	c.ntfnChan <- marshaledJSON
 	return nil
 }
 
@@ -1656,7 +1653,6 @@ func (c *wsClient) WaitForShutdown() {
 // and asynchrous handling for long-running operations.
 func newWebsocketClient(server *rpcServer, conn *websocket.Conn,
 	remoteAddr string, authenticated bool, isAdmin bool) (*wsClient, er.R) {
-
 	sessionID, err := wire.RandomUint64()
 	if err != nil {
 		return nil, err
@@ -1962,7 +1958,7 @@ func rescanBlock(wsc *wsClient, lookups *rescanKeys, blk *btcutil.Block) {
 			if txHex == "" {
 				txHex = txHexString(tx.MsgTx())
 			}
-			marshalledJSON, err := newRedeemingTxNotification(
+			marshaledJSON, err := newRedeemingTxNotification(
 				txHex, tx.Index(), blk,
 			)
 			if err != nil {
@@ -1970,7 +1966,7 @@ func rescanBlock(wsc *wsClient, lookups *rescanKeys, blk *btcutil.Block) {
 					"btcjson.RedeeminTxNtfn: %v", err)
 			}
 
-			return wsc.QueueNotification(marshalledJSON)
+			return wsc.QueueNotification(marshaledJSON)
 		}
 
 		// We'll start by iterating over the transaction's inputs to
@@ -2066,13 +2062,13 @@ func rescanBlock(wsc *wsClient, lookups *rescanKeys, blk *btcutil.Block) {
 				ntfn := btcjson.NewRecvTxNtfn(txHex,
 					blockDetails(blk, tx.Index()))
 
-				marshalledJSON, err := btcjson.MarshalCmd(nil, ntfn)
+				marshaledJSON, err := btcjson.MarshalCmd(nil, ntfn)
 				if err != nil {
 					rpcsLog.Errorf("Failed to marshal recvtx notification: %v", err)
 					return
 				}
 
-				err = wsc.QueueNotification(marshalledJSON)
+				err = wsc.QueueNotification(marshaledJSON)
 				// Stop the rescan early if the websocket client
 				// disconnected.
 				if ErrClientQuit.Is(err) {
@@ -2224,7 +2220,6 @@ func handleRescanBlocks(wsc *wsClient, icmd interface{}) (interface{}, er.R) {
 // for an unrecoverable reorganize is returned.
 func recoverFromReorg(chain *blockchain.BlockChain, minBlock, maxBlock int32,
 	lastBlock *chainhash.Hash) ([]chainhash.Hash, er.R) {
-
 	hashList, err := chain.HeightRange(minBlock, maxBlock)
 	if err != nil {
 		rpcsLog.Errorf("Error looking up block range: %v", err)
@@ -2274,7 +2269,6 @@ func descendantBlock(prevHash *chainhash.Hash, curBlock *btcutil.Block) er.R {
 func scanBlockChunks(wsc *wsClient, cmd *btcjson.RescanCmd, lookups *rescanKeys, minBlock,
 	maxBlock int32, chain *blockchain.BlockChain) (
 	*btcutil.Block, *chainhash.Hash, er.R) {
-
 	// lastBlock and lastBlockHash track the previously-rescanned block.
 	// They equal nil when no previous blocks have been rescanned.
 	var (

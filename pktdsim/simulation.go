@@ -13,9 +13,10 @@ import (
 	"os"
 	"time"
 
+	"github.com/btcsuite/btcutil"
+
 	"github.com/pkt-cash/pktd/chaincfg/chainhash"
 	rpc "github.com/pkt-cash/pktd/rpcclient"
-	"github.com/btcsuite/btcutil"
 )
 
 // MissingCertPairFile is raised when one of the cert pair files is missing
@@ -108,7 +109,6 @@ func (s *Simulation) updateFlags() {
 // which communicates with the actors. It waits until the simulation
 // finishes or is interrupted
 func (s *Simulation) Start() error {
-
 	// re-use existing cert, key if both are present
 	// if only one of cert, key is missing, exit with err message
 	haveCert := fileExists(CertFile)

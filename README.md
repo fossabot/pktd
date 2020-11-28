@@ -106,7 +106,7 @@ different defaults and non-standard patches, often deviating significantly
 from the corresponding official upstream release. This usually done to meet
 distribution-specific policies and requirements, but presents a unique hazard
 for software software such as `pktd`, operating on distributed consensus. This
-class of software is unique, in that it must maintain *bug-for-bug* compatability
+class of software is unique, in that it must maintain *bug-for-bug* compatibility
 in consensus-critical codepaths. Nodes which incorporate their own changes, even
 well-intentioned *"fixes"*, may not be able to properly interoperate on the main
 network, and, in sufficient numbers, these nodes could, unintentionally, create an

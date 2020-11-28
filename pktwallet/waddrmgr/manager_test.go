@@ -14,6 +14,8 @@ import (
 	"time"
 
 	"github.com/davecgh/go-spew/spew"
+	"go.etcd.io/bbolt"
+
 	"github.com/pkt-cash/pktd/btcutil"
 	"github.com/pkt-cash/pktd/btcutil/er"
 	"github.com/pkt-cash/pktd/btcutil/util"
@@ -22,7 +24,6 @@ import (
 	"github.com/pkt-cash/pktd/pktwallet/snacl"
 	"github.com/pkt-cash/pktd/pktwallet/walletdb"
 	"github.com/pkt-cash/pktd/pktwallet/walletdb/bdb"
-	"go.etcd.io/bbolt"
 )
 
 // failingCryptoKey is an implementation of the EncryptorDecryptor interface
@@ -107,7 +108,6 @@ func testNamePrefix(tc *testContext) string {
 // are checked to ensure they return the correct error.
 func testManagedPubKeyAddress(tc *testContext, prefix string,
 	gotAddr ManagedPubKeyAddress, wantAddr *expectedAddr) bool {
-
 	// Ensure pubkey is the expected value for the managed address.
 	var gpubBytes []byte
 	if gotAddr.Compressed() {
@@ -228,7 +228,6 @@ func testManagedPubKeyAddress(tc *testContext, prefix string,
 // are checked to ensure they return the correct error.
 func testManagedScriptAddress(tc *testContext, prefix string,
 	gotAddr ManagedScriptAddress, wantAddr *expectedAddr) bool {
-
 	// Ensure script is the expected value for the managed address.
 	// Ensure script is the expected value for the managed address.  Since
 	// this is only available when the manager is unlocked, also check for
@@ -273,7 +272,6 @@ func testManagedScriptAddress(tc *testContext, prefix string,
 // are checked to ensure they return the correct error.
 func testAddress(tc *testContext, prefix string, gotAddr ManagedAddress,
 	wantAddr *expectedAddr) bool {
-
 	if gotAddr.Account() != tc.account {
 		tc.t.Errorf("ManagedAddress.Account: unexpected account - got "+
 			"%d, want %d", gotAddr.Account(), tc.account)
@@ -1603,7 +1601,7 @@ func testWatchingOnly(tc *testContext) bool {
 	// watching only.
 	woMgrName := "mgrtestwo.bin"
 	_ = os.Remove(woMgrName)
-	fi, errr := os.OpenFile(woMgrName, os.O_CREATE|os.O_RDWR, 0600)
+	fi, errr := os.OpenFile(woMgrName, os.O_CREATE|os.O_RDWR, 0o600)
 	if errr != nil {
 		tc.t.Errorf("%v", errr)
 		return false
@@ -1766,7 +1764,7 @@ func TestManager(t *testing.T) {
 		_, err := Open(ns, pubPassphrase, &chaincfg.MainNetParams)
 		return err
 	})
-	if !util.CheckError(t, "Open non-existant", err, ErrNoExist) {
+	if !util.CheckError(t, "Open non-existent", err, ErrNoExist) {
 		return
 	}
 

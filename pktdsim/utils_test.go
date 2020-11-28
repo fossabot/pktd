@@ -46,7 +46,7 @@ func TestReadCSV(t *testing.T) {
 		t.Errorf("readCSV error: %v", err)
 	}
 	expectedTxCurve := map[int32]*Row{
-		20000: &Row{
+		20000: {
 			utxoCount: 40000,
 			txCount:   20000,
 		},

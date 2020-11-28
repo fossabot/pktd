@@ -16,13 +16,14 @@ import (
 	"runtime/pprof"
 	"time"
 
+	"github.com/arl/statsviz"
+
 	"github.com/pkt-cash/pktd/blockchain/indexers"
 	"github.com/pkt-cash/pktd/btcutil/er"
 	"github.com/pkt-cash/pktd/database"
 	"github.com/pkt-cash/pktd/database/ffldb"
 	"github.com/pkt-cash/pktd/limits"
 	"github.com/pkt-cash/pktd/pktconfig/version"
-	"github.com/arl/statsviz"
 )
 
 const (
@@ -35,9 +36,7 @@ const (
 	Is64Bit = (uint64(^uintptr(0)) == ^uint64(0))
 )
 
-var (
-	cfg *config
-)
+var cfg *config
 
 // winServiceMain is only invoked on Windows.  It detects when pktd is running
 // as a service and reacts accordingly.
@@ -49,7 +48,6 @@ var winServiceMain func() (bool, er.R)
 // notified with the server once it is setup so it can gracefully stop it when
 // requested from the service control manager.
 func pktdMain(serverChan chan<- *server) er.R {
-
 	// Unconditionally show the version informatin at startup.
 	pktdLog.Infof("Version %s", version.Version())
 
@@ -94,9 +92,9 @@ func pktdMain(serverChan chan<- *server) er.R {
 			return er.E(errr)
 		}
 		if errp := pprof.StartCPUProfile(f); errp != nil {
-            pktdLog.Errorf("could not start CPU profile: ", errp)
+			pktdLog.Errorf("could not start CPU profile: ", errp)
 			return er.E(errp)
-        }
+		}
 		defer f.Close()
 		defer pprof.StopCPUProfile()
 	}
@@ -197,9 +195,9 @@ func pktdMain(serverChan chan<- *server) er.R {
 		select {
 		case <-shutdownDone:
 		case <-time.Tick(shutdownTimeout):
-		pktdLog.Errorf("Shutdown within %s failed, attempting forceful termination", shutdownTimeout)
-		time.Sleep(1 * time.Second)
-		panic("Forcefully terminating server process")
+			pktdLog.Errorf("Shutdown within %s failed, attempting forceful termination", shutdownTimeout)
+			time.Sleep(1 * time.Second)
+			panic("Forcefully terminating server process")
 		}
 		srvrLog.Infof("Server process shutting down")
 	}()
@@ -278,7 +276,7 @@ func loadBlockDB() (database.DB, er.R) {
 
 		// Create the db if it does not exist.
 		pktdLog.Infof("No block metadata exists, starting up new block database")
-		errr := os.MkdirAll(cfg.DataDir, 0700)
+		errr := os.MkdirAll(cfg.DataDir, 0o700)
 		if errr != nil {
 			return nil, er.E(errr)
 		}
@@ -294,7 +292,7 @@ func loadBlockDB() (database.DB, er.R) {
 
 func main() {
 	version.SetUserAgentName("pktd")
-	runtime.GOMAXPROCS(runtime.NumCPU()*6)
+	runtime.GOMAXPROCS(runtime.NumCPU() * 6)
 
 	// Block and transaction processing can cause bursty allocations.  This
 	// limits the garbage collector from excessively overallocating during

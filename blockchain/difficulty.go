@@ -202,7 +202,6 @@ func (b *BlockChain) findPrevTestNetDifficulty(startNode *blockNode) uint32 {
 	iterNode := startNode
 	for iterNode != nil && iterNode.height%b.blocksPerRetarget != 0 &&
 		iterNode.bits == b.chainParams.PowLimitBits {
-
 		iterNode = iterNode.parent
 	}
 

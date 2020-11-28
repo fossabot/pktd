@@ -22,6 +22,7 @@ import (
 	"github.com/pkt-cash/pktd/wire/protocol"
 
 	"github.com/davecgh/go-spew/spew"
+
 	"github.com/pkt-cash/pktd/blockchain"
 	"github.com/pkt-cash/pktd/chaincfg"
 	"github.com/pkt-cash/pktd/chaincfg/chainhash"
@@ -41,9 +42,9 @@ const (
 	// nodes send more txns at once and reduces the time new txns/inv msgs
 	// and forces a before they can be broadcast. The previous settings were
 	// limited the maximum a single node could send to about ~28MB worth of
-	// txns every ten minutes. 
+	// txns every ten minutes.
 	//
-	// XXX(trn) I'm investigating the effects of removing the trickling 
+	// XXX(trn) I'm investigating the effects of removing the trickling
 	// concept all-together and broadcasting or rebroadcasting all txns
 	// almost immediately, but it would require some extra peer selection
 	// logic, rather than just rebroadcasting txns to connected peers at
@@ -58,7 +59,7 @@ const (
 	// able to fingerprint the exact origin of another nodes transactions.
 	// This was later proven mostly ineffective, at least for privacy, see:
 	// https://www.ncbi.nlm.nih.gov/pmc/articles/PMC6292573/ - While we are
-	// not yet reducing this to millisecond timeframes or eliminating it, 
+	// not yet reducing this to millisecond timeframes or eliminating it,
 	// testing with the 2s interval in simulation (10,000 nodes) as well as
 	// on the pkt mainnet has been successful, without any negative effect.
 	//
@@ -89,7 +90,7 @@ const (
 	// peer that hasn't completed the initial version negotiation. The BTCD
 	// default timeout of 30 for negotiations has been decreased to 10 seconds
 	// to be closer to the behavior of the Satoshi Bitcoin implementation,
-	// which is currently is 5000ms, but is tunable, and often incresed by 
+	// which is currently is 5000ms, but is tunable, and often incresed by
 	// end-users to improve successful peer negotiations.
 	negotiateTimeout = 10 * time.Second
 
@@ -318,7 +319,7 @@ func minUint32(a, b uint32) uint32 {
 // net.Addr interface and create a bitcoin NetAddress structure using that
 // information.
 func newNetAddress(addr net.Addr, services protocol.ServiceFlag) (*wire.NetAddress, er.R) {
-	// addr should be a net.TCPAddr 
+	// addr should be a net.TCPAddr
 	if tcpAddr, ok := addr.(*net.TCPAddr); ok {
 		ip := tcpAddr.IP
 		port := uint16(tcpAddr.Port)
@@ -1243,7 +1244,7 @@ func (p *Peer) maybeAddDeadline(pendingResponses map[string]time.Time, msgCmd st
 			// our own, so they might not reply.
 
 			// Expects an inv message.
-			//pendingResponses[wire.CmdInv] = deadline
+			// pendingResponses[wire.CmdInv] = deadline
 		}
 
 	case wire.CmdGetData:
@@ -1909,7 +1910,6 @@ func (p *Peer) QueueMessage(msg wire.Message, doneChan chan<- struct{}) {
 // This function is safe for concurrent access.
 func (p *Peer) QueueMessageWithEncoding(msg wire.Message, doneChan chan<- struct{},
 	encoding wire.MessageEncoding) {
-
 	// Avoid risk of deadlock if goroutine already exited.  The goroutine
 	// we will be sending to hangs around until it knows for a fact that
 	// it is marked as disconnected and *then* it drains the channels.

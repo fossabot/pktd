@@ -22,6 +22,7 @@ import (
 	"time"
 
 	flags "github.com/jessevdk/go-flags"
+
 	"github.com/pkt-cash/pktd/blockchain"
 	"github.com/pkt-cash/pktd/btcutil"
 	"github.com/pkt-cash/pktd/btcutil/er"
@@ -129,7 +130,7 @@ type config struct {
 	SimNet               bool          `long:"simnet" description:"Use the simulation test network"`
 	AddCheckpoints       []string      `long:"addcheckpoint" description:"Add a custom checkpoint.  Format: '<height>:<hash>'"`
 	DisableCheckpoints   bool          `long:"nocheckpoints" description:"Disable built-in checkpoints.  Don't do this unless you know what you're doing."`
-	StatsViz			 string		   `long:"statsviz" description:"Enable StatsViz runtime visualization on given port -- NOTE port must be between 1024 and 65535"`
+	StatsViz             string        `long:"statsviz" description:"Enable StatsViz runtime visualization on given port -- NOTE port must be between 1024 and 65535"`
 	Profile              string        `long:"profile" description:"Enable HTTP profiling on given port -- NOTE port must be between 1024 and 65535"`
 	CPUProfile           string        `long:"cpuprofile" description:"Write CPU profile to the specified file"`
 	DebugLevel           string        `short:"d" long:"debuglevel" description:"Logging level for all subsystems {trace, debug, info, warn, error, critical} -- You may also specify <subsystem>=<level>,<subsystem2>=<level>,... to set the log level for individual subsystems -- Use show to list available subsystems"`
@@ -486,7 +487,7 @@ func loadConfig() (*config, []string, er.R) {
 
 	// Create the home directory if it doesn't already exist.
 	funcName := "loadConfig"
-	errr = os.MkdirAll(cfg.HomeDir, 0700)
+	errr = os.MkdirAll(cfg.HomeDir, 0o700)
 	if errr != nil {
 		// Show a nicer error message if it's because a symlink is
 		// linked to a directory that does not exist (probably because
@@ -727,7 +728,7 @@ func loadConfig() (*config, []string, er.R) {
 		cfg.RPCUser = "__PKT_COOKIE__"
 		cfg.RPCPass = hex.EncodeToString(buf[:])
 		cookie := cfg.RPCUser + ":" + cfg.RPCPass
-		if errr := ioutil.WriteFile(cookiePath, []byte(cookie), 0600); errr != nil {
+		if errr := ioutil.WriteFile(cookiePath, []byte(cookie), 0o600); errr != nil {
 			err := er.E(errr)
 			err.AddMessage("Could not write .pktcookie file")
 			return nil, nil, err
@@ -983,13 +984,13 @@ type cryptoSource struct{}
 func (s cryptoSource) Seed(seed int64) {}
 
 func (s cryptoSource) Int63() int64 {
-    return int64(s.Uint64() & ^uint64(1<<63))
+	return int64(s.Uint64() & ^uint64(1<<63))
 }
 
 func (s cryptoSource) Uint64() (v uint64) {
-    err := binary.Read(crand.Reader, binary.BigEndian, &v)
-    if err != nil {
+	err := binary.Read(crand.Reader, binary.BigEndian, &v)
+	if err != nil {
 		panic("CSPRNG failure: Could not read random numbers")
-    }
-    return v
+	}
+	return v
 }

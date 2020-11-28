@@ -9,7 +9,6 @@ import (
 	"container/list"
 	crand "crypto/rand" // for seeding
 	"encoding/binary"
-	"github.com/json-iterator/go"
 	"io"
 	"math/rand"
 	"net"
@@ -19,6 +18,8 @@ import (
 	"sync"
 	"sync/atomic"
 	"time"
+
+	jsoniter "github.com/json-iterator/go"
 
 	"github.com/pkt-cash/pktd/btcutil/er"
 	"github.com/pkt-cash/pktd/wire/protocol"
@@ -153,7 +154,7 @@ const (
 	minBadDays = 7
 
 	// getAddrMax is the most addresses that we will send in response
-	// to a getAddr (in practise the most addresses we will return from a
+	// to a getAddr (in practice the most addresses we will return from a
 	// call to AddressCache()).
 	getAddrMax = 5000
 
@@ -444,7 +445,6 @@ func (a *AddrManager) loadPeers() {
 }
 
 func (a *AddrManager) deserializePeers(filePath string) er.R {
-
 	_, errr := os.Stat(filePath)
 	if os.IsNotExist(errr) {
 		return nil
@@ -538,12 +538,12 @@ func (a *AddrManager) deserializePeers(filePath string) er.R {
 	// Sanity checking.
 	for k, v := range a.addrIndex {
 		if v.refs == 0 && !v.tried {
-			return er.Errorf("address %s after serialisation "+
+			return er.Errorf("address %s after serialization "+
 				"with no references", k)
 		}
 
 		if v.refs > 0 && v.tried {
-			return er.Errorf("address %s after serialisation "+
+			return er.Errorf("address %s after serialization "+
 				"which is both new and tried!", k)
 		}
 	}
@@ -554,7 +554,6 @@ func (a *AddrManager) deserializePeers(filePath string) er.R {
 // DeserializeNetAddress converts a given address string to a *wire.NetAddress.
 func (a *AddrManager) DeserializeNetAddress(addr string,
 	services protocol.ServiceFlag) (*wire.NetAddress, er.R) {
-
 	host, portStr, err := net.SplitHostPort(addr)
 	if err != nil {
 		return nil, er.E(err)
@@ -709,7 +708,6 @@ func (a *AddrManager) getAddresses() []*wire.NetAddress {
 // reset resets the address manager by reinitialising the random source
 // and allocating fresh empty bucket storage.
 func (a *AddrManager) reset() {
-
 	a.addrIndex = make(map[string]*KnownAddress)
 
 	// fill key with bytes from a good random source.
@@ -1069,10 +1067,10 @@ func getReachabilityFrom(localAddr, remoteAddr *wire.NetAddress) int {
 	}
 
 	/* ipv6 */
-	var tunnelled bool
-	// Is our v6 is tunnelled?
+	var tunneled bool
+	// Is our v6 is tunneled?
 	if IsRFC3964(localAddr) || IsRFC6052(localAddr) || IsRFC6145(localAddr) {
-		tunnelled = true
+		tunneled = true
 	}
 
 	if !IsRoutable(localAddr) {
@@ -1087,8 +1085,8 @@ func getReachabilityFrom(localAddr, remoteAddr *wire.NetAddress) int {
 		return Ipv4
 	}
 
-	if tunnelled {
-		// only prioritise ipv6 if we aren't tunnelling it.
+	if tunneled {
+		// only prioritize ipv6 if we aren't tunneling it.
 		return Ipv6Weak
 	}
 

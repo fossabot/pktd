@@ -15,13 +15,14 @@ import (
 	"unicode/utf8"
 
 	"github.com/jessevdk/go-flags"
+	"go.etcd.io/bbolt"
+
 	"github.com/pkt-cash/pktd/btcutil"
 	"github.com/pkt-cash/pktd/btcutil/er"
 	"github.com/pkt-cash/pktd/btcutil/util"
 	"github.com/pkt-cash/pktd/pktconfig/version"
 	"github.com/pkt-cash/pktd/pktwallet/walletdb"
 	"github.com/pkt-cash/pktd/pktwallet/walletdb/bdb"
-	"go.etcd.io/bbolt"
 )
 
 const defaultNet = "pkt"
@@ -123,10 +124,10 @@ func repair0(temppath string, db walletdb.DB) er.R {
 	if util.Exists(backupPath) {
 		return er.Errorf("%s exists so no place to put the backup", backupPath)
 	}
-    bboltopts := &bbolt.Options{
-		NoFreelistSync:  true,
-		FreelistType:    bbolt.FreelistMapType,
-    }
+	bboltopts := &bbolt.Options{
+		NoFreelistSync: true,
+		FreelistType:   bbolt.FreelistMapType,
+	}
 	toDb, err := bdb.OpenDB(temppath, true, bboltopts)
 	if err != nil {
 		return err
@@ -184,8 +185,8 @@ func mainInt() int {
 		return 1
 	}
 	bboltopts := &bbolt.Options{
-		NoFreelistSync:  true,
-		FreelistType:    bbolt.FreelistMapType,
+		NoFreelistSync: true,
+		FreelistType:   bbolt.FreelistMapType,
 	}
 	db, err := bdb.OpenDB(opts.DbPath, false, bboltopts)
 	if err != nil {

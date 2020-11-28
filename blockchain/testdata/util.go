@@ -31,7 +31,7 @@ import (
 // in the format bitcoind writes) from disk and returns them as an array of
 // btcutil.Block.  This is largely borrowed from the test code in pktdb.
 func LoadBlocks(filename string) ([]*btcutil.Block, er.R) {
-	var network = protocol.MainNet
+	network := protocol.MainNet
 	var dr io.Reader
 	var fi io.ReadCloser
 
@@ -84,7 +84,7 @@ func LoadBlocks(filename string) ([]*btcutil.Block, er.R) {
 }
 
 func GetBlock(name string, t *testing.T) *btcutil.Block {
-	runtime.GOMAXPROCS(runtime.NumCPU()*6)
+	runtime.GOMAXPROCS(runtime.NumCPU() * 6)
 
 	blocks, err := LoadBlocks(name)
 	if err != nil {

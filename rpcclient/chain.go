@@ -8,7 +8,8 @@ package rpcclient
 import (
 	"bytes"
 	"encoding/hex"
-	"github.com/json-iterator/go"
+
+	jsoniter "github.com/json-iterator/go"
 
 	"github.com/pkt-cash/pktd/btcutil/er"
 
@@ -389,7 +390,6 @@ func (r FutureGetCFilterHeaderResult) Receive() (*wire.MsgCFHeaders, er.R) {
 	// Assign the hash to a headers message and return it.
 	msgCFHeaders := wire.MsgCFHeaders{PrevFilterHeader: *headerHash}
 	return &msgCFHeaders, nil
-
 }
 
 // GetCFilterHeaderAsync returns an instance of a type that can be used to get

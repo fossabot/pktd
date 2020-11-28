@@ -13,6 +13,7 @@ import (
 	"time"
 
 	flags "github.com/jessevdk/go-flags"
+
 	"github.com/pkt-cash/pktd/btcutil"
 	"github.com/pkt-cash/pktd/pktconfig/version"
 )
@@ -67,11 +68,11 @@ func main() {
 	}
 
 	// Write cert and key files.
-	if errr = ioutil.WriteFile(certFile, cert, 0666); err != nil {
+	if errr = ioutil.WriteFile(certFile, cert, 0o666); err != nil {
 		fmt.Fprintf(os.Stderr, "cannot write cert: %v\n", errr)
 		os.Exit(1)
 	}
-	if errr = ioutil.WriteFile(keyFile, key, 0600); err != nil {
+	if errr = ioutil.WriteFile(keyFile, key, 0o600); err != nil {
 		os.Remove(certFile)
 		fmt.Fprintf(os.Stderr, "cannot write key: %v\n", errr)
 		os.Exit(1)

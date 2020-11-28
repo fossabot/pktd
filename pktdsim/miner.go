@@ -11,9 +11,10 @@ import (
 	"log"
 	"time"
 
+	"github.com/btcsuite/btcutil"
+
 	"github.com/pkt-cash/pktd/chaincfg/chainhash"
 	rpc "github.com/pkt-cash/pktd/rpcclient"
-	"github.com/btcsuite/btcutil"
 )
 
 // Miner holds all the core features required to register, run, control,
@@ -26,7 +27,6 @@ type Miner struct {
 // to control it.
 func NewMiner(miningAddrs []btcutil.Address, exit chan struct{},
 	height chan<- int32, txpool chan<- struct{}) (*Miner, error) {
-
 	ntfnHandlers := &rpc.NotificationHandlers{
 		// When a block higher than stopBlock connects to the chain,
 		// send a signal to stop actors. This is used so main can break from

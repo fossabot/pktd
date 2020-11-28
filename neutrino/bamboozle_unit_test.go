@@ -11,6 +11,8 @@ import (
 	"github.com/pkt-cash/pktd/btcutil/er"
 	"github.com/pkt-cash/pktd/txscript/opcode"
 
+	"go.etcd.io/bbolt"
+
 	"github.com/pkt-cash/pktd/btcutil/gcs"
 	"github.com/pkt-cash/pktd/btcutil/gcs/builder"
 	"github.com/pkt-cash/pktd/chaincfg"
@@ -18,7 +20,6 @@ import (
 	"github.com/pkt-cash/pktd/neutrino/headerfs"
 	"github.com/pkt-cash/pktd/pktwallet/walletdb/bdb"
 	"github.com/pkt-cash/pktd/wire"
-	"go.etcd.io/bbolt"
 )
 
 func decodeHashNoError(str string) *chainhash.Hash {
@@ -552,9 +553,9 @@ func runCheckCFCheckptSanityTestCase(t *testing.T, testCase *cfCheckptTestCase) 
 		t.Fatalf("Failed to create temporary directory: %s", er.E(errr))
 	}
 	defer os.RemoveAll(tempDir)
-    opts := &bbolt.Options{
-        NoFreelistSync: true,
-    }
+	opts := &bbolt.Options{
+		NoFreelistSync: true,
+	}
 	db, err := bdb.OpenDB(tempDir+"/weks.db", true, opts)
 	if err != nil {
 		t.Fatalf("Error opening DB: %s", err)
@@ -656,7 +657,6 @@ func runCheckCFCheckptSanityTestCase(t *testing.T, testCase *cfCheckptTestCase) 
 }
 
 func TestCheckCFCheckptSanity(t *testing.T) {
-
 	for _, testCase := range cfCheckptTestCases {
 		t.Run(testCase.name, func(t *testing.T) {
 			runCheckCFCheckptSanityTestCase(t, testCase)
@@ -665,7 +665,6 @@ func TestCheckCFCheckptSanity(t *testing.T) {
 }
 
 func TestCheckForCFHeadersMismatch(t *testing.T) {
-
 	for _, testCase := range checkCFHTestCases {
 		t.Run(testCase.name, func(t *testing.T) {
 			mismatch := checkForCFHeaderMismatch(
@@ -681,7 +680,6 @@ func TestCheckForCFHeadersMismatch(t *testing.T) {
 }
 
 func TestResolveFilterMismatchFromBlock(t *testing.T) {
-
 	// The correct filter should have the coinbase output and the regular
 	// script output.
 	if correctFilter.N() != 2 {

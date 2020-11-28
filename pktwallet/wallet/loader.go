@@ -14,13 +14,14 @@ import (
 
 	"github.com/pkt-cash/pktd/btcutil/er"
 
+	"go.etcd.io/bbolt"
+
 	"github.com/pkt-cash/pktd/chaincfg"
 	"github.com/pkt-cash/pktd/pktwallet/internal/prompt"
 	"github.com/pkt-cash/pktd/pktwallet/waddrmgr"
 	"github.com/pkt-cash/pktd/pktwallet/wallet/seedwords"
 	"github.com/pkt-cash/pktd/pktwallet/walletdb"
 	"github.com/pkt-cash/pktd/pktwallet/walletdb/bdb"
-	"go.etcd.io/bbolt"
 )
 
 var Err er.ErrorType = er.NewErrorType("wallet.Err")
@@ -66,7 +67,6 @@ type Loader struct {
 // starting from the last SyncedTo height.
 func NewLoader(chainParams *chaincfg.Params, dbDirPath,
 	walletName string, noFreelistSync bool, recoveryWindow uint32) *Loader {
-
 	return &Loader{
 		chainParams:    chainParams,
 		walletName:     walletName,
@@ -121,7 +121,6 @@ func WalletDbPath(netDir, walletName string) string {
 // this seed.  If nil, a secure random seed is generated.
 func (l *Loader) CreateNewWallet(pubPassphrase, privPassphrase []byte,
 	seedInput []byte, seed *seedwords.Seed) (*Wallet, er.R) {
-
 	defer l.mu.Unlock()
 	l.mu.Lock()
 
@@ -139,13 +138,13 @@ func (l *Loader) CreateNewWallet(pubPassphrase, privPassphrase []byte,
 	}
 
 	// Create the wallet database backed by bolt db.
-	err = er.E(os.MkdirAll(l.dbDirPath, 0700))
+	err = er.E(os.MkdirAll(l.dbDirPath, 0o700))
 	if err != nil {
 		return nil, err
 	}
 	opts := &bbolt.Options{
-		NoFreelistSync:  true,
-		FreelistType:    bbolt.FreelistMapType,
+		NoFreelistSync: true,
+		FreelistType:   bbolt.FreelistMapType,
 	}
 	db, err := bdb.OpenDB(dbPath, true, opts)
 	if err != nil {
@@ -190,16 +189,16 @@ func (l *Loader) OpenExistingWallet(pubPassphrase []byte, canConsolePrompt bool)
 		return nil, err
 	}
 
-		var dbFileSize int64
-		var opts *bbolt.Options
+	var dbFileSize int64
+	var opts *bbolt.Options
 
 	// Open the database using the boltdb backend.
 	dbPath := WalletDbPath(l.dbDirPath, l.walletName)
-    exists, err := fileExists(dbPath)
-    if err != nil {
-        return nil, err
-    }
-    if exists {
+	exists, err := fileExists(dbPath)
+	if err != nil {
+		return nil, err
+	}
+	if exists {
 		dbFileInfo, _ := os.Stat(dbPath)
 		dbFileSize = int64(dbFileInfo.Size())
 		opts = &bbolt.Options{

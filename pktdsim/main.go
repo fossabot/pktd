@@ -9,17 +9,17 @@ package main
 import (
 	"flag"
 	"log"
+	"math/rand"
 	"net"
 	"net/http"
 	"os"
 	"path/filepath"
+	"runtime"
+	"time"
 
 	"github.com/btcsuite/btcutil"
 
-	"math/rand"
 	_ "net/http/pprof"
-	"runtime"
-	"time"
 )
 
 var (
@@ -70,7 +70,7 @@ func init() {
 
 	// make sure the app data dir exists
 	if !fileExists(AppDataDir) {
-		if err := os.Mkdir(AppDataDir, 0700); err != nil {
+		if err := os.Mkdir(AppDataDir, 0o700); err != nil {
 			log.Fatalf("Cannot create app data dir: %v", err)
 		}
 	}

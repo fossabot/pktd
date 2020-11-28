@@ -14,6 +14,7 @@ import (
 	"testing"
 
 	"github.com/davecgh/go-spew/spew"
+
 	"github.com/pkt-cash/pktd/btcec"
 	"github.com/pkt-cash/pktd/btcutil"
 	"github.com/pkt-cash/pktd/chaincfg"
@@ -88,8 +89,10 @@ func TestBtcAddressSerializer(t *testing.T) {
 
 func TestScriptAddressSerializer(t *testing.T) {
 	fakeWallet := &Store{net: (*netParams)(tstNetParams)}
-	script := []byte{opcode.OP_TRUE, opcode.OP_DUP,
-		opcode.OP_DROP}
+	script := []byte{
+		opcode.OP_TRUE, opcode.OP_DUP,
+		opcode.OP_DROP,
+	}
 	addr, err := newScriptAddress(fakeWallet, script, makeBS(0))
 	if err != nil {
 		t.Error(err)
@@ -742,7 +745,7 @@ func TestImportPrivateKey(t *testing.T) {
 		return
 	}
 
-	// serialise and deseralise and check still there.
+	// serialize and deseralise and check still there.
 
 	// Test (de)serialization of wallet.
 	buf := new(bytes.Buffer)
@@ -764,7 +767,7 @@ func TestImportPrivateKey(t *testing.T) {
 		return
 	}
 
-	// Mark imported address as partially synced with a block somewhere inbetween
+	// Mark imported address as partially synced with a block somewhere between
 	// the import height and the chain height.
 	partialHeight := (createHeight-importHeight)/2 + importHeight
 	if err := w2.SetSyncStatus(address, PartialSync(partialHeight)); err != nil {
@@ -843,7 +846,6 @@ func TestImportPrivateKey(t *testing.T) {
 		t.Error("original and deserialized private keys do not match.")
 		return
 	}
-
 }
 
 func TestImportScript(t *testing.T) {
@@ -868,8 +870,10 @@ func TestImportScript(t *testing.T) {
 		return
 	}
 
-	script := []byte{opcode.OP_TRUE, opcode.OP_DUP,
-		opcode.OP_DROP}
+	script := []byte{
+		opcode.OP_TRUE, opcode.OP_DUP,
+		opcode.OP_DROP,
+	}
 	importHeight := int32(50)
 	stamp := makeBS(importHeight)
 	address, err := w.ImportScript(script, stamp)
@@ -959,7 +963,7 @@ func TestImportScript(t *testing.T) {
 		return
 	}
 
-	// serialise and deseralise and check still there.
+	// serialize and deseralise and check still there.
 
 	// Test (de)serialization of wallet.
 	buf := new(bytes.Buffer)
@@ -1066,7 +1070,7 @@ func TestImportScript(t *testing.T) {
 		return
 	}
 
-	// Mark imported address as partially synced with a block somewhere inbetween
+	// Mark imported address as partially synced with a block somewhere between
 	// the import height and the chain height.
 	partialHeight := (createHeight-importHeight)/2 + importHeight
 	if err := w2.SetSyncStatus(address, PartialSync(partialHeight)); err != nil {

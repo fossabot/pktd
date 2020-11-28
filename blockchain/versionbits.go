@@ -286,7 +286,6 @@ func (b *BlockChain) warnUnknownVersions(node *blockNode) er.R {
 		}
 		if expectedVersion > vbLegacyBlockVersion &&
 			(node.version & ^expectedVersion) != 0 {
-
 			numUpgraded++
 		}
 

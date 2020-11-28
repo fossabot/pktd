@@ -244,9 +244,11 @@ func (e err) HasStack() bool {
 	return e.bstack != nil
 }
 
-var argumentsRegex = regexp.MustCompile(`\([0-9a-fx, \.]*\)$`)
-var prefixRegex = regexp.MustCompile(`^.*/pkt-cash/pktd/`)
-var goFileRegex = regexp.MustCompile(`\.go:[0-9]+ `)
+var (
+	argumentsRegex = regexp.MustCompile(`\([0-9a-fx, \.]*\)$`)
+	prefixRegex    = regexp.MustCompile(`^.*/pkt-cash/pktd/`)
+	goFileRegex    = regexp.MustCompile(`\.go:[0-9]+ `)
+)
 
 func (e err) Stack() []string {
 	if e.stack == nil {
@@ -397,6 +399,7 @@ func equals(e, r R, fuzzy bool) bool {
 func Equals(e, r R) bool {
 	return equals(e, r, false)
 }
+
 func FuzzyEquals(e, r R) bool {
 	return equals(e, r, true)
 }

@@ -2091,7 +2091,6 @@ func opcodeCheckSig(op *parsescript.ParsedOpcode, vm *Engine) er.R {
 	var signature *btcec.Signature
 	if vm.hasFlag(ScriptVerifyStrictEncoding) ||
 		vm.hasFlag(ScriptVerifyDERSignatures) {
-
 		signature, err = btcec.ParseDERSignature(sigBytes, btcec.S256())
 	} else {
 		signature, err = btcec.ParseSignature(sigBytes, btcec.S256())
@@ -2300,7 +2299,6 @@ func opcodeCheckMultiSig(op *parsescript.ParsedOpcode, vm *Engine) er.R {
 			var err er.R
 			if vm.hasFlag(ScriptVerifyStrictEncoding) ||
 				vm.hasFlag(ScriptVerifyDERSignatures) {
-
 				parsedSig, err = btcec.ParseDERSignature(signature,
 					btcec.S256())
 			} else {

@@ -12,6 +12,7 @@ import (
 	"github.com/pkt-cash/pktd/btcutil/er"
 
 	"github.com/davecgh/go-spew/spew"
+
 	"github.com/pkt-cash/pktd/wire"
 )
 
@@ -56,7 +57,6 @@ func genTestTx() (*wire.MsgTx, er.R) {
 // inserted.  Conversely, ContainsHashes should return false for any items
 // _not_ in the hash cache.
 func TestHashCacheAddContainsHashes(t *testing.T) {
-
 	seed := time.Now().Unix()
 	rand.Seed(seed)
 
@@ -109,7 +109,6 @@ func TestHashCacheAddContainsHashes(t *testing.T) {
 // TestHashCacheAddGet tests that the sighashes for a particular transaction
 // are properly retrieved by the GetSigHashes function.
 func TestHashCacheAddGet(t *testing.T) {
-
 	rand.Seed(time.Now().Unix())
 
 	cache := NewHashCache(10)
@@ -143,7 +142,6 @@ func TestHashCacheAddGet(t *testing.T) {
 // TestHashCachePurge tests that items are able to be properly removed from the
 // hash cache.
 func TestHashCachePurge(t *testing.T) {
-
 	rand.Seed(time.Now().Unix())
 
 	cache := NewHashCache(10)

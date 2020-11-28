@@ -15,10 +15,11 @@ import (
 	"sync"
 	"time"
 
+	"github.com/btcsuite/btcutil"
+
 	"github.com/pkt-cash/pktd/btcjson"
 	rpc "github.com/pkt-cash/pktd/rpcclient"
 	"github.com/pkt-cash/pktd/wire"
-	"github.com/btcsuite/btcutil"
 )
 
 // minFee is the minimum tx fee that can be paid
@@ -35,7 +36,7 @@ type utxoQueue struct {
 }
 
 // Actor describes an actor on the simulation network.  Each actor runs
-// independantly without external input to decide it's behavior.
+// independently without external input to decide it's behavior.
 type Actor struct {
 	*Node
 	quit             chan struct{}
@@ -96,7 +97,7 @@ func NewActor(node *Node, port uint16) (*Actor, error) {
 //
 // In addition to starting the wallet process, this runs goroutines to
 // handle wallet notifications and requests the wallet process to create
-// an intial encrypted wallet, so that it can actually send and receive BTC.
+// an initial encrypted wallet, so that it can actually send and receive BTC.
 //
 // If the RPC client connection cannot be established or wallet cannot
 // be created, the wallet process is killed and the actor directory
@@ -365,7 +366,7 @@ out:
 	close(a.utxoQueue.dequeue)
 }
 
-// Shutdown performs a shutdown down the actor by first signalling
+// Shutdown performs a shutdown down the actor by first signaling
 // all goroutines to stop, waiting for them to stop and them cleaning up
 func (a *Actor) Shutdown() {
 	select {

@@ -8,12 +8,13 @@ package txscript
 import (
 	"bytes"
 	"encoding/hex"
-	"github.com/json-iterator/go"
 	"fmt"
 	"io/ioutil"
 	"strconv"
 	"strings"
 	"testing"
+
+	jsoniter "github.com/json-iterator/go"
 
 	"github.com/pkt-cash/pktd/btcutil/er"
 	"github.com/pkt-cash/pktd/txscript/opcode"
@@ -117,7 +118,6 @@ func parseShortForm(script string) ([]byte, er.R) {
 			if (opcodeName == "OP_FALSE" || opcodeName == "OP_TRUE") ||
 				(opcodeValue != opcode.OP_0 && (opcodeValue < opcode.OP_1 ||
 					opcodeValue > opcode.OP_16)) {
-
 				ops[strings.TrimPrefix(opcodeName, "OP_")] = opcodeValue
 			}
 		}
@@ -221,13 +221,15 @@ func parseExpectedResult(expected string) ([]*er.ErrorCode, er.R) {
 	case "PUBKEYTYPE":
 		return []*er.ErrorCode{txscripterr.ErrPubKeyType}, nil
 	case "SIG_DER":
-		return []*er.ErrorCode{txscripterr.ErrSigTooShort, txscripterr.ErrSigTooLong,
+		return []*er.ErrorCode{
+			txscripterr.ErrSigTooShort, txscripterr.ErrSigTooLong,
 			txscripterr.ErrSigInvalidSeqID, txscripterr.ErrSigInvalidDataLen, txscripterr.ErrSigMissingSTypeID,
 			txscripterr.ErrSigMissingSLen, txscripterr.ErrSigInvalidSLen,
 			txscripterr.ErrSigInvalidRIntID, txscripterr.ErrSigZeroRLen, txscripterr.ErrSigNegativeR,
 			txscripterr.ErrSigTooMuchRPadding, txscripterr.ErrSigInvalidSIntID,
 			txscripterr.ErrSigZeroSLen, txscripterr.ErrSigNegativeS, txscripterr.ErrSigTooMuchSPadding,
-			txscripterr.ErrInvalidSigHashType}, nil
+			txscripterr.ErrInvalidSigHashType,
+		}, nil
 	case "EVAL_FALSE":
 		return []*er.ErrorCode{txscripterr.ErrEvalFalse, txscripterr.ErrEmptyStack}, nil
 	case "EQUALVERIFY":
@@ -247,8 +249,10 @@ func parseExpectedResult(expected string) ([]*er.ErrorCode, er.R) {
 	case "BAD_OPCODE":
 		return []*er.ErrorCode{txscripterr.ErrReservedOpcode, txscripterr.ErrMalformedPush}, nil
 	case "UNBALANCED_CONDITIONAL":
-		return []*er.ErrorCode{txscripterr.ErrUnbalancedConditional,
-			txscripterr.ErrInvalidStackOperation}, nil
+		return []*er.ErrorCode{
+			txscripterr.ErrUnbalancedConditional,
+			txscripterr.ErrInvalidStackOperation,
+		}, nil
 	case "OP_RETURN":
 		return []*er.ErrorCode{txscripterr.ErrEarlyReturn}, nil
 	case "VERIFY":
@@ -305,7 +309,6 @@ func parseExpectedResult(expected string) ([]*er.ErrorCode, er.R) {
 // signature, witness and public key scripts.
 func createSpendingTx(witness [][]byte, sigScript, pkScript []byte,
 	outputValue int64) *wire.MsgTx {
-
 	coinbaseTx := wire.NewMsgTx(constants.TxVersion)
 
 	outPoint := wire.NewOutPoint(&chainhash.Hash{}, ^uint32(0))

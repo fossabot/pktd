@@ -12,9 +12,10 @@ import (
 
 	"github.com/pkt-cash/pktd/btcutil/er"
 
+	"go.etcd.io/bbolt"
+
 	"github.com/pkt-cash/pktd/neutrino/banman"
 	"github.com/pkt-cash/pktd/pktwallet/walletdb/bdb"
-	"go.etcd.io/bbolt"
 )
 
 // createTestBanStore creates a test Store backed by a boltdb instance.
@@ -26,9 +27,9 @@ func createTestBanStore(t *testing.T) (banman.Store, func()) {
 		t.Fatalf("unable to create db dir: %v", er.E(errr))
 	}
 	dbPath := filepath.Join(dbDir, "test.db")
-    opts := &bbolt.Options{
-        NoFreelistSync: true,
-    }
+	opts := &bbolt.Options{
+		NoFreelistSync: true,
+	}
 	db, err := bdb.OpenDB(dbPath, true, opts)
 	if err != nil {
 		os.RemoveAll(dbDir)
@@ -52,7 +53,6 @@ func createTestBanStore(t *testing.T) (banman.Store, func()) {
 // TestBanStore ensures that the BanStore's state correctly reflects the
 // BanStatus of IP networks.
 func TestBanStore(t *testing.T) {
-
 	// We'll start by creating our test BanStore backed by a boltdb
 	// instance.
 	banStore, cleanUp := createTestBanStore(t)
@@ -62,7 +62,6 @@ func TestBanStore(t *testing.T) {
 	// status is correctly reflected within the BanStore.
 	checkBanStore := func(ipNet *net.IPNet, banned bool,
 		reason banman.Reason, duration time.Duration) {
-
 		t.Helper()
 
 		banStatus, err := banStore.Status(ipNet)
@@ -108,7 +107,7 @@ func TestBanStore(t *testing.T) {
 	if err != nil {
 		t.Fatalf("unable to parse IP network from %v: %v", addr2, err)
 	}
-	err = banStore.BanIPNet(ipNet2, banman.ExceededBanThreshold, 15 * time.Second)
+	err = banStore.BanIPNet(ipNet2, banman.ExceededBanThreshold, 15*time.Second)
 	if err != nil {
 		t.Fatalf("unable to ban IP network: %v", err)
 	}
@@ -116,7 +115,7 @@ func TestBanStore(t *testing.T) {
 	// Both IP networks should be found within the BanStore with their
 	// expected reason since their ban has yet to expire.
 	checkBanStore(ipNet1, true, banman.NoCompactFilters, time.Hour)
-	checkBanStore(ipNet2, true, banman.ExceededBanThreshold, 15 * time.Second)
+	checkBanStore(ipNet2, true, banman.ExceededBanThreshold, 15*time.Second)
 
 	// Wait long enough for the second IP network's ban to expire.
 	<-time.After(16 * time.Second)

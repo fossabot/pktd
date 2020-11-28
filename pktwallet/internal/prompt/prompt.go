@@ -14,10 +14,11 @@ import (
 
 	"github.com/pkt-cash/pktd/btcutil/er"
 
+	"golang.org/x/crypto/ssh/terminal"
+
 	"github.com/pkt-cash/pktd/btcutil/hdkeychain"
 	"github.com/pkt-cash/pktd/pktwallet/internal/legacy/keystore"
 	"github.com/pkt-cash/pktd/pktwallet/wallet/seedwords"
-	"golang.org/x/crypto/ssh/terminal"
 )
 
 // ProvideSeed is used to prompt for the wallet seed which maybe required during
@@ -103,7 +104,7 @@ func promptList(reader *bufio.Reader, prefix string, validResponses []string, de
 
 // promptListBool prompts the user for a boolean (yes/no) with the given prefix.
 // The function will repeat the prompt to the user until they enter a valid
-// reponse.
+// response.
 func promptListBool(reader *bufio.Reader, prefix string, defaultEntry string) (bool, er.R) {
 	// Setup the valid responses.
 	valid := []string{"n", "no", "y", "yes"}
@@ -202,7 +203,6 @@ func PrivatePass(reader *bufio.Reader, legacyKeyStore *keystore.Store) ([]byte, 
 // prompts are repeated until the user enters a valid response.
 func PublicPass(reader *bufio.Reader, privPass []byte,
 	defaultPubPassphrase, configPubPassphrase []byte) ([]byte, er.R) {
-
 	pubPass := defaultPubPassphrase
 	usePubPass, err := promptListBool(reader, "Do you want "+
 		"to add an additional layer of encryption for public "+

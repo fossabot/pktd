@@ -58,7 +58,6 @@ func TestTxFeePrioHeap(t *testing.T) {
 		}
 		if prioItem.feePerKB >= highest.feePerKB &&
 			prioItem.priority > highest.priority {
-
 			highest = prioItem
 		}
 		heap.Push(priorityQueue, prioItem)
@@ -68,7 +67,6 @@ func TestTxFeePrioHeap(t *testing.T) {
 		prioItem := heap.Pop(priorityQueue).(*txPrioItem)
 		if prioItem.feePerKB >= highest.feePerKB &&
 			prioItem.priority > highest.priority {
-
 			t.Fatalf("fee sort: item (fee per KB: %v, "+
 				"priority: %v) higher than than prev "+
 				"(fee per KB: %v, priority %v)",
@@ -88,7 +86,6 @@ func TestTxFeePrioHeap(t *testing.T) {
 		}
 		if prioItem.priority >= highest.priority &&
 			prioItem.feePerKB > highest.feePerKB {
-
 			highest = prioItem
 		}
 		heap.Push(priorityQueue, prioItem)
@@ -98,7 +95,6 @@ func TestTxFeePrioHeap(t *testing.T) {
 		prioItem := heap.Pop(priorityQueue).(*txPrioItem)
 		if prioItem.priority >= highest.priority &&
 			prioItem.feePerKB > highest.feePerKB {
-
 			t.Fatalf("priority sort: item (fee per KB: %v, "+
 				"priority: %v) higher than than prev "+
 				"(fee per KB: %v, priority %v)",

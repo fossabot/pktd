@@ -16,12 +16,13 @@ import (
 	"sync"
 	"time"
 
+	"github.com/btcsuite/btcutil"
+
 	"github.com/pkt-cash/pktd/chaincfg"
 	"github.com/pkt-cash/pktd/chaincfg/chainhash"
 	rpc "github.com/pkt-cash/pktd/rpcclient"
 	"github.com/pkt-cash/pktd/txscript"
 	"github.com/pkt-cash/pktd/wire"
-	"github.com/btcsuite/btcutil"
 )
 
 // Block contains the block hash and height as received in a

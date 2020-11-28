@@ -12,15 +12,15 @@
 
 package bdb_test
 
-
 import (
 	"io/ioutil"
 	"os"
 	"path/filepath"
 	"testing"
 
-	"github.com/pkt-cash/pktd/pktwallet/walletdb/walletdbtest"
 	"go.etcd.io/bbolt"
+
+	"github.com/pkt-cash/pktd/pktwallet/walletdb/walletdbtest"
 )
 
 // TestInterface performs all interfaces tests for this database driver.

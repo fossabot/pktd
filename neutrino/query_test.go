@@ -129,7 +129,7 @@ func genRandomBlockHash() *chainhash.Hash {
 // will then convert that filter into CacheableFilter to compute it's size for
 // convenience. It will return the filter along with it's size and randomly
 // generated block hash. testing.T is passed in as a convenience to deal with
-// errors in this method and making the test code more straigthforward. Method
+// errors in this method and making the test code more straightforward. Method
 // originally taken from filterdb/db_test.go.
 func genRandFilter(numElements uint32, t *testing.T) (
 	*chainhash.Hash, *gcs.Filter, uint64) {
@@ -250,7 +250,6 @@ func TestBigFilterEvictsEverything(t *testing.T) {
 // TestBlockCache checks that blocks are inserted and fetched from the cache
 // before peers are queried.
 func TestBlockCache(t *testing.T) {
-
 	// Load the first 255 blocks from disk.
 	blocks, err := loadBlocks(t, blockDataFile, blockDataNet)
 	if err != nil {
@@ -294,7 +293,6 @@ func TestBlockCache(t *testing.T) {
 	queries := make(chan chainhash.Hash, 1)
 	cs.queryPeers = func(msg wire.Message, f func(*ServerPeer,
 		wire.Message, chan<- struct{}) bool, qo ...QueryOption) {
-
 		getData, ok := msg.(*wire.MsgGetData)
 		if !ok {
 			t.Fatalf("unexpected type: %T", msg)

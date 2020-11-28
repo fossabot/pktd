@@ -10,10 +10,11 @@ import (
 	"os"
 	"path/filepath"
 
+	"go.etcd.io/bbolt"
+
 	"github.com/pkt-cash/pktd/btcutil/er"
 	"github.com/pkt-cash/pktd/pktwallet/walletdb"
 	"github.com/pkt-cash/pktd/pktwallet/walletdb/bdb"
-	"go.etcd.io/bbolt"
 )
 
 // This example demonstrates creating a new database.
@@ -52,7 +53,7 @@ var exampleNum = 0
 func exampleLoadDB() (walletdb.DB, func(), er.R) {
 	dbName := fmt.Sprintf("exampleload%d.db", exampleNum)
 	dbPath := filepath.Join(os.TempDir(), dbName)
-		opts := &bbolt.Options{
+	opts := &bbolt.Options{
 		NoFreelistSync: true,
 	}
 	db, err := bdb.OpenDB(dbPath, true, opts)

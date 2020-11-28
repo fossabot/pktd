@@ -7,12 +7,14 @@ package main
 import (
 	"bufio"
 	"fmt"
-	"go.etcd.io/bbolt"
 	"math"
 	"os"
 	"path/filepath"
 
+	"go.etcd.io/bbolt"
+
 	"github.com/jessevdk/go-flags"
+
 	"github.com/pkt-cash/pktd/btcutil"
 	"github.com/pkt-cash/pktd/btcutil/er"
 	"github.com/pkt-cash/pktd/pktconfig/version"

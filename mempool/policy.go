@@ -251,7 +251,7 @@ func isDust(txOut *wire.TxOut, minRelayTxFee btcutil.Amount) bool {
 	// that figure is used. If the output being spent is a witness program,
 	// then we apply the witness discount to the size of the signature.
 	//
-	// The segwit analogue to p2pkh is a p2wkh output. This is the smallest
+	// The segwit analog to p2pkh is a p2wkh output. This is the smallest
 	// output possible using the new segwit features. The 107 bytes of
 	// witness data is discounted by a factor of 4, leading to a computed
 	// value of 67 bytes of witness data.
@@ -293,7 +293,6 @@ func isDust(txOut *wire.TxOut, minRelayTxFee btcutil.Amount) bool {
 func checkTransactionStandard(tx *btcutil.Tx, height int32,
 	medianTimePast time.Time, minRelayTxFee btcutil.Amount,
 	maxTxVersion int32) er.R {
-
 	// The transaction must be a currently supported version.
 	msgTx := tx.MsgTx()
 	if msgTx.Version > maxTxVersion || msgTx.Version < 1 {

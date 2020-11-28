@@ -386,7 +386,6 @@ func (idx *TxIndex) Create(dbTx database.Tx) er.R {
 // This is part of the Indexer interface.
 func (idx *TxIndex) ConnectBlock(dbTx database.Tx, block *btcutil.Block,
 	stxos []blockchain.SpentTxOut) er.R {
-
 	// Increment the internal block ID to use for the block being connected
 	// and add all of the transactions in the block to the index.
 	newBlockID := idx.curBlockID + 1
@@ -411,7 +410,6 @@ func (idx *TxIndex) ConnectBlock(dbTx database.Tx, block *btcutil.Block,
 // This is part of the Indexer interface.
 func (idx *TxIndex) DisconnectBlock(dbTx database.Tx, block *btcutil.Block,
 	stxos []blockchain.SpentTxOut) er.R {
-
 	// Remove all of the transactions in the block from the index.
 	if err := dbRemoveTxIndexEntries(dbTx, block); err != nil {
 		return err

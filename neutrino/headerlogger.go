@@ -27,7 +27,6 @@ type headerProgressLogger struct {
 //  ({numTxs}, height {lastBlockHeight}, {lastBlockTimeStamp})
 func newBlockProgressLogger(progressMessage string,
 	entityType string, logger pktlog.Logger) *headerProgressLogger {
-
 	return &headerProgressLogger{
 		entityType:       entityType,
 		lastBlockLogTime: time.Now(),

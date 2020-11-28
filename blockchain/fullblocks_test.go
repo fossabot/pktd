@@ -52,31 +52,31 @@ func fileExists(name string) bool {
 func chainSetup(dbName string, params *chaincfg.Params) (*blockchain.BlockChain, func(), er.R) {
 	var db database.DB
 	var teardown func()
-		// Create the root directory for test databases.
-		if !fileExists(testDbRoot) {
-			if err := os.MkdirAll(testDbRoot, 0700); err != nil {
-				err := er.Errorf("unable to create test db "+
-					"root: %v", err)
-				return nil, nil, err
-			}
+	// Create the root directory for test databases.
+	if !fileExists(testDbRoot) {
+		if err := os.MkdirAll(testDbRoot, 0o700); err != nil {
+			err := er.Errorf("unable to create test db "+
+				"root: %v", err)
+			return nil, nil, err
 		}
+	}
 
-		// Create a new database to store the accepted blocks into.
-		dbPath := filepath.Join(testDbRoot, dbName)
-		_ = os.RemoveAll(dbPath)
-		ndb, err := ffldb.OpenDB(dbPath, blockDataNet, true)
-		if err != nil {
-			return nil, nil, er.Errorf("error creating db: %v", err)
-		}
-		db = ndb
+	// Create a new database to store the accepted blocks into.
+	dbPath := filepath.Join(testDbRoot, dbName)
+	_ = os.RemoveAll(dbPath)
+	ndb, err := ffldb.OpenDB(dbPath, blockDataNet, true)
+	if err != nil {
+		return nil, nil, er.Errorf("error creating db: %v", err)
+	}
+	db = ndb
 
-		// Setup a teardown function for cleaning up.  This function is
-		// returned to the caller to be invoked when it is done testing.
-		teardown = func() {
-			db.Close()
-			os.RemoveAll(dbPath)
-			os.RemoveAll(testDbRoot)
-		}
+	// Setup a teardown function for cleaning up.  This function is
+	// returned to the caller to be invoked when it is done testing.
+	teardown = func() {
+		db.Close()
+		os.RemoveAll(dbPath)
+		os.RemoveAll(testDbRoot)
+	}
 
 	// Copy the chain params to ensure any modifications the tests do to
 	// the chain parameters do not affect the global instance.
@@ -247,7 +247,6 @@ func TestFullBlocks(t *testing.T) {
 		best := chain.BestSnapshot()
 		if best.Hash != item.Block.BlockHash() ||
 			best.Height != blockHeight {
-
 			t.Fatalf("block %q (hash %s, height %d) should be "+
 				"the current tip -- got (hash %s, height %d)",
 				item.Name, block.Hash(), blockHeight, best.Hash,

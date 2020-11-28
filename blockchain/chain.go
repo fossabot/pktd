@@ -78,7 +78,6 @@ type BestState struct {
 // newBestState returns a new best stats instance for the given parameters.
 func newBestState(node *blockNode, blockSize, blockWeight, numTxns,
 	totalTxns uint64, medianTime time.Time, elect *ElectionState) *BestState {
-
 	return &BestState{
 		Hash:        node.hash,
 		Height:      node.height,
@@ -156,8 +155,8 @@ type BlockChain struct {
 	//
 	// In addition, some of the fields are stored in the database so the
 	// chain state can be quickly reconstructed on load.
-	stateLock     sync.RWMutex
-	stateSnapshot *BestState
+	stateLock        sync.RWMutex
+	stateSnapshot    *BestState
 	notificationLock sync.Mutex
 
 	// The following caches are used to efficiently keep track of the
@@ -568,7 +567,6 @@ func (b *BlockChain) getReorganizeNodes(node *blockNode) (*list.List, *list.List
 // This function MUST be called with the chain state lock held (for writes).
 func (b *BlockChain) connectBlock(node *blockNode, block *btcutil.Block,
 	view *UtxoViewpoint, stxos []SpentTxOut, newEs *ElectionState) er.R {
-
 	// Make sure it's extending the end of the best chain.
 	prevHash := &block.MsgBlock().Header.PrevBlock
 	if !prevHash.IsEqual(&b.bestChain.Tip().hash) {
@@ -1483,7 +1481,6 @@ func (b *BlockChain) HeightRange(startHeight, endHeight int32) ([]chainhash.Hash
 // This function is safe for concurrent access.
 func (b *BlockChain) HeightToHashRange(startHeight int32,
 	endHash *chainhash.Hash, maxResults int) ([]chainhash.Hash, er.R) {
-
 	endNode := b.index.LookupNode(endHash)
 	if endNode == nil {
 		return nil, er.Errorf("no known block header with hash %v", endHash)
@@ -1523,7 +1520,6 @@ func (b *BlockChain) HeightToHashRange(startHeight int32,
 // This function is safe for concurrent access.
 func (b *BlockChain) IntervalBlockHashes(endHash *chainhash.Hash, interval int,
 ) ([]chainhash.Hash, er.R) {
-
 	endNode := b.index.LookupNode(endHash)
 	if endNode == nil {
 		return nil, er.Errorf("no known block header with hash %v", endHash)
@@ -1609,7 +1605,6 @@ func (b *BlockChain) locateInventory(locator BlockLocator, hashStop *chainhash.H
 	total := uint32((b.bestChain.Tip().height - startNode.height) + 1)
 	if stopNode != nil && b.bestChain.Contains(stopNode) &&
 		stopNode.height >= startNode.height {
-
 		total = uint32((stopNode.height - startNode.height) + 1)
 	}
 	if total > maxEntries {

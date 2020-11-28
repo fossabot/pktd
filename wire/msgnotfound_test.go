@@ -14,6 +14,7 @@ import (
 	"github.com/pkt-cash/pktd/wire/protocol"
 
 	"github.com/davecgh/go-spew/spew"
+
 	"github.com/pkt-cash/pktd/chaincfg/chainhash"
 )
 

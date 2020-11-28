@@ -181,7 +181,6 @@ func isPubKeyHash(script []byte) (bool, []byte) {
 		script[2] == opcode.OP_DATA_20 &&
 		script[23] == opcode.OP_EQUALVERIFY &&
 		script[24] == opcode.OP_CHECKSIG {
-
 		return true, script[3:23]
 	}
 
@@ -195,7 +194,6 @@ func isScriptHash(script []byte) (bool, []byte) {
 	if len(script) == 23 && script[0] == opcode.OP_HASH160 &&
 		script[1] == opcode.OP_DATA_20 &&
 		script[22] == opcode.OP_EQUAL {
-
 		return true, script[2:22]
 	}
 

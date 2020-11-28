@@ -42,8 +42,9 @@ import (
 	"strings"
 	"time"
 
-	"github.com/pkt-cash/pktd/btcutil/er"
 	"github.com/sethgrid/pester"
+
+	"github.com/pkt-cash/pktd/btcutil/er"
 )
 
 // NAT is an interface representing a NAT traversal options for example UPNP or
@@ -304,7 +305,7 @@ func soapRequest(url, function, message string) (replyXML []byte, err er.R) {
 	}
 	req.Header.Set("Content-Type", "text/xml ; charset=\"utf-8\"")
 	req.Header.Set("User-Agent", "Darwin/10.0.0, UPnP/1.0, MiniUPnPc/1.3")
-	//req.Header.Set("Transfer-Encoding", "chunked")
+	// req.Header.Set("Transfer-Encoding", "chunked")
 	req.Header.Set("SOAPAction", "\"urn:schemas-upnp-org:service:WANIPConnection:1#"+function+"\"")
 	req.Header.Set("Connection", "Close")
 	req.Header.Set("Cache-Control", "no-cache")
@@ -392,7 +393,6 @@ func (n *upnpNAT) AddPortMapping(protocol string, externalPort, internalPort int
 // DeletePortMapping implements the NAT interface by removing up a port forwarding
 // from the UPnP router to the local machine with the given ports and.
 func (n *upnpNAT) DeletePortMapping(protocol string, externalPort, internalPort int) (err er.R) {
-
 	message := "<u:DeletePortMapping xmlns:u=\"urn:schemas-upnp-org:service:WANIPConnection:1\">\r\n" +
 		"<NewRemoteHost></NewRemoteHost><NewExternalPort>" + strconv.Itoa(externalPort) +
 		"</NewExternalPort><NewProtocol>" + strings.ToUpper(protocol) + "</NewProtocol>" +
