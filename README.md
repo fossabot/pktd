@@ -90,7 +90,7 @@ The **local** GitHub [**Issue Tracker**](https://github.com/johnsonjh/pktd/issue
      * `uname -a`, `cat /etc/*elease`, `lsb_release -a`
   * Windows users should attach the *PowerShell* output of:
      * `Get-CimInstance Win32_OperatingSystem | FL * | ?{$_ -notmatch 'SerialNumber'}`
-  * POSIX environment users (*including* Linux, OS X, WSL/WSL2, other UNIX systems, etc.) should attach the output of:
+  * POSIX environment users (*including* Linux, OS X, WSL, other UNIX systems, etc.) should attach the output of:
      * `command -p getconf -a`
 
 This extra information is useful to identify potential operating system, distribution, or environment-specific issues.
